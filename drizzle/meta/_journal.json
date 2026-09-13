@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789284580810,
+      "tag": "0000_clean_yellow_claw",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789290119454,
+      "tag": "0001_neat_oracle",
+      "breakpoints": true
+    }
+  ]
+}

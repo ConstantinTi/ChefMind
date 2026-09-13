@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+.vercel
+
+# Production data — the SQLite database and uploaded photos live here.
+# Never commit these: they are your recipes, and the DB is a binary blob.
+/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Environment — .env.example is the only one that belongs in git
+.env
+.env.*
+!.env.example
+
+# Build / test output
+/coverage/
+*.tsbuildinfo
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,59 @@
+services:
+  chefmind:
+    build: .
+    image: chefmind:latest
+    container_name: chefmind
+    restart: unless-stopped
+    # Bound to the loopback interface by default. The app has NO login and the
+    # MCP endpoint at /mcp exposes delete_recipe, so publishing this port to the
+    # internet would hand anyone your recipe collection. To reach it from your
+    # LAN, change this to your server's LAN address, e.g. "192.168.1.20:3000:3000",
+    # and add that host to CHEFMIND_ALLOWED_HOSTS.
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      # The SQLite database and every uploaded photo. Back this up; it is all
+      # your data, and nothing else in the image is worth keeping.
+      - ./data:/data
+    env_file:
+      - .env
+    environment:
+      CHEFMIND_DB_PATH: /data/chefmind.db
+      CHEFMIND_UPLOAD_DIR: /data/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+
+  # Nightly snapshot of the database, 14 kept. `sqlite3 .backup` is safe on a
+  # live database, unlike copying the file while WAL is mid-write.
+  backup:
+    image: chefmind:latest
+    container_name: chefmind-backup
+    restart: unless-stopped
+    depends_on:
+      # Waiting for healthy guarantees the main container's entrypoint has
+      # already chowned /data, so `node` can write here.
+      chefmind:
+        condition: service_healthy
+    # Runs as node, not root: otherwise every snapshot lands root-owned on the
+    # host and you need sudo to delete your own backups.
+    user: node
+    # This service runs a sleep loop, not the web server, so the image's
+    # HEALTHCHECK (which probes port 3000) would mark it unhealthy forever.
+    healthcheck:
+      disable: true
+    volumes:
+      - ./data:/data
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          sleep 86400
+          mkdir -p /data/backups
+          sqlite3 /data/chefmind.db ".backup '/data/backups/chefmind-$$(date +%Y%m%d).db'" \
+            && echo "[backup] $$(date -Iseconds) ok" \
+            || echo "[backup] $$(date -Iseconds) FEHLGESCHLAGEN"
+          ls -1t /data/backups/chefmind-*.db 2>/dev/null | tail -n +15 | xargs -r rm --
+        done

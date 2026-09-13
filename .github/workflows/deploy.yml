@@ -1,0 +1,54 @@
+name: Deploy
+
+# Builds and deploys directly on the server via a self-hosted runner. Nothing
+# leaves the machine: no registry, no inbound SSH from GitHub.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, chefmind, prod]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: .env prüfen
+        run: |
+          if [ ! -f .env ]; then
+            if [ -f "$HOME/chefmind.env" ]; then
+              # Secrets live on the server, outside the repo, and survive checkout.
+              cp "$HOME/chefmind.env" .env
+            else
+              echo "FEHLER: Keine .env gefunden."
+              echo "Lege ~/chefmind.env auf dem Server an (Vorlage: .env.example)."
+              exit 1
+            fi
+          fi
+
+      - name: Image bauen
+        run: docker compose build
+
+      - name: Starten
+        run: docker compose up -d --remove-orphans
+
+      - name: Auf Health warten
+        run: |
+          for i in $(seq 1 30); do
+            if [ "$(docker inspect -f '{{.State.Health.Status}}' chefmind 2>/dev/null)" = "healthy" ]; then
+              echo "ChefMind läuft."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Container wurde nicht healthy. Logs:"
+          docker compose logs --tail=50 chefmind
+          exit 1
+
+      - name: Alte Images aufräumen
+        if: always()
+        run: docker image prune -f
