@@ -23,6 +23,8 @@ src/mcp/        MCP-Tools — dünne Hüllen um services/
 src/app/        Routen, Server Actions, UI — dünne Hüllen um services/
 src/components/ UI-Bausteine; `forms.tsx` kapselt jeden Server-Action-Absender
 src/lib/forms   der Adapter zwischen HTML-Formularen und den Contracts
+src/lib/network Wer überhaupt antworten darf — Adressen und Host-Namen
+src/proxy.ts    läuft vor jeder Route und wendet genau das an
 ```
 
 Zwei Grenzen sind in `eslint.config.mjs` als `no-restricted-imports` erzwungen:
@@ -64,6 +66,32 @@ Ein Server Action, der direkt als `<form action={…}>` hängt, bekommt FormData
 Einer aus `.bind()` bekommt sein gebundenes Argument zuerst. Diese Asymmetrie hat
 schon zweimal für „expected string, received undefined" gesorgt.
 
+## Zugriff: zwei Prüfungen, zwei verschiedene Angriffe
+
+Es gibt kein Login. Stattdessen prüft `src/proxy.ts` bei jeder Anfrage zweierlei,
+und die beiden sind **nicht** austauschbar:
+
+- **Adresse** (`isPrivateAddress`) — woher die Anfrage kam. Fängt einen
+  versehentlich offenen Port ab. Alle privaten Bereiche sind fest erlaubt,
+  inklusive Tailscale (100.64.0.0/10 und fc00::/7), damit nichts pro Deployment
+  eingetragen werden muss.
+- **Host-Name** (`isAllowedHost`) — unter welchem Namen sie hereinkam. Das ist
+  der Schutz gegen DNS-Rebinding, bei dem eine Seite, die du besuchst, ihre
+  eigene Domain auf deine private IP umbiegt und dann aus deinem Browser heraus
+  die MCP-Tools bedient. Diese Anfrage kommt **von deinem eigenen Rechner** —
+  die Adressprüfung sieht sie also nicht, nur der Host-Header verrät sie.
+
+Wer eine davon streicht, streicht einen ganzen Angriff mit. Erlaubt sind ohne
+Konfiguration alle Namen, die niemand öffentlich registrieren kann: private
+IP-Literale, Hostnamen ohne Punkt, `.local`, `.lan`, `.internal`, `.home.arpa`
+und `.ts.net`. Eine echte Domain braucht `CHEFMIND_ALLOWED_HOSTS`.
+
+**Grenzen der Adressprüfung:** sie liest `x-forwarded-for`. Next füllt den Header
+aus der Verbindung, wenn der Client keinen mitschickt — schickt er einen, wird
+dieser unverändert durchgereicht. Die Prüfung ist deshalb ein Leitplanke gegen
+Scanner und Fehlkonfiguration, **keine Grenze** gegen jemanden, der den Port
+ohnehin erreicht. Die echte Grenze ist das Port-Binding in `docker-compose.yml`.
+
 ## Was leicht kaputtgeht
 
 - Rundung ist Küchenlogik, keine Mathematik. Tests in `src/domain/scaling/` halten
@@ -85,6 +113,10 @@ schon zweimal für „expected string, received undefined" gesorgt.
   (`scaling`, `category`, `rounding`, `note`). Lässt man sie weg, leitet der Service
   sie neu her und verwirft still jede Übersteuerung — einen Tippfehler zu
   korrigieren würde dann ändern, wie das Rezept skaliert.
+- In Next 16 heißt die Datei `proxy.ts`, nicht `middleware.ts` — letztere ist
+  deprecated. Sie muss neben `app/` liegen, in diesem Projekt also unter `src/`,
+  sonst wird sie stillschweigend ignoriert. Im Build-Output taucht sie als
+  „ƒ Proxy (Middleware)" auf; fehlt die Zeile, greift der Zugriffsschutz nicht.
 - Der Kochmodus-Link muss die aktuell gewählte Portionszahl mitgeben. Er lebt
   deshalb im `ServingsScaler` und nicht im Seitenkopf.
 

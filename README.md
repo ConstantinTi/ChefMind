@@ -106,8 +106,8 @@ Alles über `.env`, Vorlage in `.env.example`.
 | `ANTHROPIC_API_KEY` | Key für Anthropic |
 | `OPENROUTER_API_KEY` | Key für OpenRouter |
 | `CHEFMIND_AI_MODEL` | Modell — bei Anthropic optional (Standard `claude-opus-5`), bei OpenRouter Pflicht |
-| `CHEFMIND_ALLOWED_HOSTS` | Hostnamen **ohne Port**, unter denen die App erreichbar ist |
-| `CHEFMIND_ALLOWED_ORIGINS` | Erlaubte Origins für `/mcp` |
+| `CHEFMIND_ALLOW_PUBLIC_ACCESS` | `1` hebt die Beschränkung auf private Adressen auf |
+| `CHEFMIND_ALLOWED_HOSTS` | Zusätzliche Hostnamen **ohne Port** — nur für eine eigene Domain nötig |
 | `CHEFMIND_MCP_READONLY` | `1` = nur lesende MCP-Tools |
 | `CHEFMIND_MCP_TOKEN` | Optionales Bearer-Token für `/mcp`, leer = kein Auth |
 
@@ -182,14 +182,11 @@ Danach Claude Desktop vollständig beenden und neu starten.
 aus. Ist `CHEFMIND_MCP_TOKEN` gesetzt, kommt
 `"--header", "Authorization: Bearer <token>"` dazu.
 
-Damit ein anderes Gerät überhaupt herankommt, sind zwei Dinge nötig — beides
-schlägt sonst mit einer wenig aussagekräftigen Meldung fehl:
-
-1. In `docker-compose.yml` das Port-Binding von `127.0.0.1:3000:3000` auf die
-   LAN-Adresse ändern, z. B. `192.168.1.250:3000:3000`.
-2. Dieselbe Adresse in `CHEFMIND_ALLOWED_HOSTS` und `CHEFMIND_ALLOWED_ORIGINS`
-   eintragen — **ohne Port**. Sonst antwortet der Endpunkt mit
-   `Invalid Host`, weil der DNS-Rebinding-Schutz greift.
+Ein anderes Gerät im LAN oder über Tailscale erreicht den Endpunkt ohne weitere
+Konfiguration: der Container veröffentlicht den Port auf allen Interfaces, und
+private Adressen sind erlaubt. Nur eine **eigene Domain** muss in
+`CHEFMIND_ALLOWED_HOSTS` ergänzt werden, sonst antwortet der Endpunkt mit
+`Unerwarteter Host` — das ist der DNS-Rebinding-Schutz.
 
 17 Tools: `list_recipes`, `get_recipe`, `scale_recipe`, `suggest_recipes`,
 `create_recipe`, `update_recipe`, `delete_recipe`, `import_recipe_from_url`,
