@@ -17,6 +17,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Runs before anything else so a half-set-up server says what is missing,
+      # instead of failing three steps later with "docker: command not found".
+      - name: Voraussetzungen prüfen
+        run: |
+          fehler=0
+
+          if ! command -v docker >/dev/null 2>&1; then
+            echo "FEHLER: 'docker' ist für den Runner-Benutzer ($(whoami)) nicht aufrufbar."
+            echo "  PATH: $PATH"
+            echo "  Prüfen: ist Docker installiert, und liegt es in diesem PATH?"
+            echo "  Bei Rootless- oder Snap-Installationen den Pfad in der Runner-Umgebung ergänzen."
+            fehler=1
+          elif ! docker info >/dev/null 2>&1; then
+            echo "FEHLER: 'docker' ist da, aber der Daemon antwortet nicht für $(whoami)."
+            echo "  Meist fehlt die Gruppenmitgliedschaft:"
+            echo "    sudo usermod -aG docker $(whoami)"
+            echo "  Danach den Runner-Dienst neu starten — eine neue Gruppe greift erst"
+            echo "  in einer neuen Sitzung, ein laufender Dienst sieht sie nicht."
+            fehler=1
+          elif ! docker compose version >/dev/null 2>&1; then
+            echo "FEHLER: 'docker compose' fehlt (Compose v2 wird gebraucht, nicht docker-compose)."
+            fehler=1
+          fi
+
+          exit $fehler
+
       - name: .env prüfen
         run: |
           if [ ! -f .env ]; then
@@ -25,7 +51,10 @@ jobs:
               cp "$HOME/chefmind.env" .env
             else
               echo "FEHLER: Keine .env gefunden."
-              echo "Lege ~/chefmind.env auf dem Server an (Vorlage: .env.example)."
+              echo "  Erwartet: $HOME/chefmind.env  (Benutzer: $(whoami))"
+              echo "  Vorlage: .env.example aus diesem Repo."
+              echo "  Die Datei liegt bewusst außerhalb des Repos: sie enthält den"
+              echo "  API-Key und würde von jedem Checkout überschrieben."
               exit 1
             fi
           fi
@@ -49,6 +78,9 @@ jobs:
           docker compose logs --tail=50 chefmind
           exit 1
 
+      # Cleanup must never be the error you see. When the job had already failed
+      # this step used to run anyway and bury the real cause under exit 127.
       - name: Alte Images aufräumen
-        if: always()
+        if: success()
+        continue-on-error: true
         run: docker image prune -f

@@ -226,10 +226,21 @@ GitHub-Runner**. Kein Registry-Push, kein eingehendes SSH von GitHub.
 
 Einmalig auf dem Server:
 
-1. Runner installieren: `https://github.com/ConstantinTi/ChefMind/settings/actions/runners`
-2. Runner-Benutzer in die `docker`-Gruppe: `sudo usermod -aG docker <user>`
-3. `~/chefmind.env` anlegen (Vorlage `.env.example`) — Secrets bleiben außerhalb
-   des Repos und überleben jeden Checkout
+1. Runner installieren, mit den Labels `chefmind` und `prod`:
+   `https://github.com/ConstantinTi/ChefMind/settings/actions/runners`
+2. Docker samt Compose v2 installieren und den Dienst starten
+3. Runner-Benutzer in die `docker`-Gruppe: `sudo usermod -aG docker <user>`
+
+   Danach den **Runner-Dienst neu starten**
+   (`sudo ./svc.sh stop && sudo ./svc.sh start` im Runner-Verzeichnis). Eine neue
+   Gruppenmitgliedschaft greift erst in einer neuen Sitzung — ein bereits
+   laufender Dienst sieht sie nicht und scheitert weiter mit
+   „permission denied" oder „command not found".
+4. `~/chefmind.env` anlegen (Vorlage `.env.example`) — im Home des
+   **Runner-Benutzers**, nicht im eigenen. Secrets bleiben so außerhalb des Repos
+   und überleben jeden Checkout.
+
+Der Workflow prüft diese Punkte vorab und sagt genau, welcher fehlt.
 
 Danach baut und deployt jeder Push auf `main` automatisch
 (`.github/workflows/deploy.yml`): `docker compose build`, `up -d`, Warten auf
