@@ -136,10 +136,17 @@ export function isPrivateAddress(raw: string): boolean {
 /**
  * The client address, as far as it can be known.
  *
- * Next's own Node server fills in `x-forwarded-for` from the socket when the
- * client did not send one. When the client DID send one, that value is passed
- * through untouched — so this header is a useful signal but never a proof.
- * Treat the result as a guard rail; the boundary is the port binding.
+ * Read from `x-forwarded-for`. How much that is worth depends entirely on what
+ * sits in front:
+ *
+ *   - As deployed, nothing reaches the app except through Caddy or
+ *     `tailscale serve`, and both overwrite this header with the real peer
+ *     address. Then it is trustworthy.
+ *   - Running the app's own port directly, Next fills the header in from the
+ *     socket only when the client did not send one. A client that sends its
+ *     own is believed. Then this is a guard rail, not a boundary.
+ *
+ * Either way the first entry is the original client, which is what matters.
  */
 export function clientAddressFromHeaders(headers: Headers): string | null {
   const forwarded = headers.get('x-forwarded-for');

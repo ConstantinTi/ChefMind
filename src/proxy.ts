@@ -9,12 +9,12 @@ import { clientAddressFromHeaders, envHostList, isAllowedHost, isPrivateAddress 
  * request, before any route, and enforces two independent things — see
  * `src/lib/network.ts` for why both are needed and what each one stops.
  *
- * Note on trust: the client address comes from `x-forwarded-for`, which Next's
- * Node server fills in from the socket but which a client can also send itself.
- * So this stops a stray port forward, a scanner, and anything that wanders in
- * by accident — it is NOT a boundary against someone who can already reach the
- * port and knows to forge the header. The real boundary is which interface the
- * container publishes on; see docker-compose.yml.
+ * Note on trust: the client address comes from `x-forwarded-for`. In the shipped
+ * setup the app listens on loopback only and everything arrives through Caddy or
+ * `tailscale serve`, both of which overwrite that header with the real peer — so
+ * it cannot be forged. Publish the app's own port directly and that stops being
+ * true: Next only fills the header in when the client sent none, so a client
+ * that sends its own is believed. See docker-compose.yml.
  *
  * In Next 16 this file is `proxy.ts`, not `middleware.ts`, and it runs on the
  * Node.js runtime by default.

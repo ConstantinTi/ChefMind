@@ -1,0 +1,30 @@
+# TLS-Endpunkt für den Zugriff aus dem LAN.
+#
+# Über Tailscale wird diese Datei nicht gebraucht: `tailscale serve` bringt ein
+# echtes, öffentlich vertrautes Let's-Encrypt-Zertifikat für den .ts.net-Namen
+# mit und erneuert es selbst. Caddy ist für den Fall, dass die App auch unter
+# ihrer LAN-Adresse per HTTPS erreichbar sein soll — für eine private IP kann
+# keine öffentliche CA ein Zertifikat ausstellen, also selbst signiert.
+{
+	# Kein ACME: der Server ist von außen nicht erreichbar, eine öffentliche CA
+	# könnte ihn nie validieren.
+	auto_https off
+	admin off
+}
+
+:443 {
+	tls /tls/server.crt /tls/server.key
+
+	reverse_proxy chefmind:3000 {
+		# Überschreiben, nicht anhängen. Die App entscheidet anhand dieses Headers,
+		# ob ein Client aus einem privaten Netz kommt — würde hier der vom Client
+		# mitgeschickte Wert stehenbleiben, wäre die Prüfung wertlos. So ist die
+		# Adresse die echte Gegenstelle und nicht fälschbar.
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Real-IP {remote_host}
+	}
+}
+
+:80 {
+	redir https://{host}{uri} permanent
+}

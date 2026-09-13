@@ -23,6 +23,11 @@ jobs:
         run: |
           fehler=0
 
+          if ! command -v openssl >/dev/null 2>&1; then
+            echo "FEHLER: 'openssl' fehlt — wird für das TLS-Zertifikat gebraucht."
+            fehler=1
+          fi
+
           if ! command -v docker >/dev/null 2>&1; then
             echo "FEHLER: 'docker' ist für den Runner-Benutzer ($(whoami)) nicht aufrufbar."
             echo "  PATH: $PATH"
@@ -58,6 +63,12 @@ jobs:
               exit 1
             fi
           fi
+
+      # Caddy braucht die Dateien beim Start. Über Tailscale ist das nicht nötig
+      # (dort stellt `tailscale serve` ein echtes Zertifikat), für den Zugriff
+      # über die LAN-Adresse kann es aber keine öffentliche CA geben.
+      - name: TLS-Zertifikat sicherstellen
+        run: ./scripts/generate-cert.sh
 
       - name: Image bauen
         run: docker compose build

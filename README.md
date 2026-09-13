@@ -20,6 +20,7 @@ Container, ein Volume.
   Display bleibt an
 - **Nährwerte je Portion**, KI-geschätzt und von Hand korrigierbar
 - **Fotos** je Rezept: hochladen, Titelbild wählen, löschen
+- **HTTPS** — über Tailscale mit echtem Zertifikat, im LAN selbst signiert
 - **Installierbar** (PWA) und offline lesbar — was du schon geöffnet hast,
   bleibt erreichbar, wenn das Küchen-WLAN aussetzt
 - **Hell und dunkel**, nach Systemeinstellung; Drucklayout für Rezept und
@@ -106,6 +107,8 @@ Alles über `.env`, Vorlage in `.env.example`.
 | `ANTHROPIC_API_KEY` | Key für Anthropic |
 | `OPENROUTER_API_KEY` | Key für OpenRouter |
 | `CHEFMIND_AI_MODEL` | Modell — bei Anthropic optional (Standard `claude-opus-5`), bei OpenRouter Pflicht |
+| `CHEFMIND_DEFAULT_SERVINGS` | Portionszahl, mit der Rezepte sich öffnen (Standard 4) |
+| `CHEFMIND_TLS_HOSTS` | Zusätzliche Namen im selbst signierten Zertifikat |
 | `CHEFMIND_ALLOW_PUBLIC_ACCESS` | `1` hebt die Beschränkung auf private Adressen auf |
 | `CHEFMIND_ALLOWED_HOSTS` | Zusätzliche Hostnamen **ohne Port** — nur für eine eigene Domain nötig |
 | `CHEFMIND_MCP_READONLY` | `1` = nur lesende MCP-Tools |
@@ -143,21 +146,17 @@ Erreichbar unter `/mcp`, gleicher Port wie die Weboberfläche.
 ### Claude Code
 
 ```bash
-claude mcp add --transport http chefmind http://<server>:3000/mcp
+claude mcp add --transport http chefmind https://<server>/mcp
 ```
 
 ### Claude Desktop
 
 Claude Desktop gibt es nur für macOS und Windows, läuft also auf einem anderen
-Gerät als der Server. Zwei Wege:
+Gerät als der Server — und spricht MCP-Server nur über **HTTPS** an. Wie man
+dahin kommt, steht unter [HTTPS](#https); der bequemste Weg ist Tailscale, weil
+das Zertifikat dann öffentlich vertraut ist und auf dem Client nichts zu tun ist.
 
-**Als Custom Connector** — Einstellungen › Connectors › „Add custom connector",
-dann die URL `http://<server>:3000/mcp` eintragen. Der einfachere Weg, sofern
-Claude Desktop die Klartext-HTTP-Adresse akzeptiert (die Oberfläche erwartet
-üblicherweise `https://`).
-
-**Über `mcp-remote`** — funktioniert sicher, auch ohne TLS. In
-`claude_desktop_config.json` (macOS: `~/Library/Application Support/Claude/`,
+In `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claude/`,
 Windows: `%APPDATA%\Claude\`):
 
 ```json
@@ -165,28 +164,38 @@ Windows: `%APPDATA%\Claude\`):
   "mcpServers": {
     "chefmind": {
       "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "http://192.168.1.250:3000/mcp",
-        "--allow-http",
-        "--transport", "http-only"
-      ]
+      "args": ["-y", "mcp-remote", "https://chefmind.deintailnet.ts.net/mcp"]
     }
   }
 }
 ```
 
+Mit dem selbst signierten Zertifikat aus dem LAN muss der Client die CA kennen.
+`mcp-remote` läuft unter Node, also:
+
+```json
+{
+  "mcpServers": {
+    "chefmind": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://192.168.1.250/mcp"],
+      "env": { "NODE_EXTRA_CA_CERTS": "/Pfad/zu/ca.crt" }
+    }
+  }
+}
+```
+
+`data/tls/ca.crt` vom Server auf den Client kopieren und den Pfad eintragen.
 Danach Claude Desktop vollständig beenden und neu starten.
 
-`make mcp-desktop` gibt diesen Block mit der echten LAN-Adresse dieses Rechners
-aus. Ist `CHEFMIND_MCP_TOKEN` gesetzt, kommt
-`"--header", "Authorization: Bearer <token>"` dazu.
+`make mcp-desktop` gibt den passenden Block fertig aus — mit dem Tailnet-Namen,
+falls Tailscale läuft, sonst mit der LAN-Adresse. Ist `CHEFMIND_MCP_TOKEN`
+gesetzt, kommt `"--header", "Authorization: Bearer <token>"` dazu.
 
-Ein anderes Gerät im LAN oder über Tailscale erreicht den Endpunkt ohne weitere
-Konfiguration: der Container veröffentlicht den Port auf allen Interfaces, und
-private Adressen sind erlaubt. Nur eine **eigene Domain** muss in
-`CHEFMIND_ALLOWED_HOSTS` ergänzt werden, sonst antwortet der Endpunkt mit
-`Unerwarteter Host` — das ist der DNS-Rebinding-Schutz.
+Eine **eigene Domain** muss in `CHEFMIND_ALLOWED_HOSTS` ergänzt werden, sonst
+antwortet der Endpunkt mit `Unerwarteter Host` — das ist der
+DNS-Rebinding-Schutz. Private Adressen, `.local`, `.lan`, `.internal`,
+`.home.arpa` und `.ts.net` gelten ohne Eintrag.
 
 17 Tools: `list_recipes`, `get_recipe`, `scale_recipe`, `suggest_recipes`,
 `create_recipe`, `update_recipe`, `delete_recipe`, `import_recipe_from_url`,
@@ -216,6 +225,57 @@ sind trotzdem eingebaut:
 Sollte die App je aus dem Internet erreichbar sein, setze zusätzlich
 `CHEFMIND_MCP_TOKEN` — ein gemeinsames Geheimnis, kein Benutzerkonto.
 
+## HTTPS
+
+Gebraucht wird es aus zwei Gründen: Claude Desktop spricht MCP-Server nur über
+HTTPS an, und Service Worker — also die installierbare PWA — verlangen außerhalb
+von `localhost` einen sicheren Kontext. Über eine LAN-Adresse per `http://` gibt
+es beides nicht.
+
+### Über Tailscale — der einfache Weg
+
+Tailscale stellt für den MagicDNS-Namen deines Rechners ein echtes
+Let's-Encrypt-Zertifikat aus und erneuert es selbst. Auf den Clients ist
+**nichts** zu installieren.
+
+```bash
+make tls-tailscale        # entspricht: tailscale serve --bg --https=443 http://127.0.0.1:3000
+```
+
+Einmalig nötig: im Tailscale-Admin unter
+[DNS](https://login.tailscale.com/admin/dns) die Option **HTTPS Certificates**
+aktivieren. Danach läuft ChefMind unter
+`https://<rechner>.<tailnet>.ts.net/`, erreichbar von jedem Gerät im Tailnet und
+von sonst niemandem.
+
+Wieder abschalten: `tailscale serve --https=443 off`.
+
+### Über die LAN-Adresse — selbst signiert
+
+Für eine private IP kann keine öffentliche CA ein Zertifikat ausstellen, also
+eine eigene, lokale CA:
+
+```bash
+make cert                 # legt data/tls/{ca,server}.{crt,key} an
+docker compose up -d      # der caddy-Dienst nutzt sie
+```
+
+Das Skript nimmt automatisch Loopback, den Hostnamen und **alle privaten
+Adressen** dieses Rechners ins Zertifikat auf. Weitere Namen über
+`CHEFMIND_TLS_HOSTS`. Nach einem Adresswechsel: `make cert-force`.
+
+Damit Browser und Clients nicht warnen, muss `data/tls/ca.crt` einmalig als
+vertrauenswürdig eingetragen werden — im System-Zertifikatsspeicher oder, für
+`mcp-remote`, über `NODE_EXTRA_CA_CERTS`.
+
+### Warum das die Adressprüfung erst belastbar macht
+
+Die App selbst lauscht nur auf `127.0.0.1` und ist ausschließlich über Caddy
+oder `tailscale serve` erreichbar. Beide **überschreiben** `X-Forwarded-For` mit
+der echten Gegenstelle. Erst dadurch ist die Prüfung „kommt diese Anfrage aus
+einem privaten Netz?" nicht mehr fälschbar — ein Client kann den Header zwar
+mitschicken, er wird aber verworfen.
+
 ## Deployment
 
 Gebaut und gestartet wird direkt auf dem Server über einen **self-hosted
@@ -236,6 +296,9 @@ Einmalig auf dem Server:
 4. `~/chefmind.env` anlegen (Vorlage `.env.example`) — im Home des
    **Runner-Benutzers**, nicht im eigenen. Secrets bleiben so außerhalb des Repos
    und überleben jeden Checkout.
+5. Für HTTPS über das Tailnet einmalig `make tls-tailscale` (siehe
+   [HTTPS](#https)). Das selbst signierte Zertifikat für den LAN-Zugriff legt der
+   Workflow bei jedem Deploy selbst an, falls es fehlt.
 
 Der Workflow prüft diese Punkte vorab und sagt genau, welcher fehlt.
 

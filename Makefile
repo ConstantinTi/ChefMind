@@ -24,11 +24,14 @@ COMPOSE := $(shell \
 
 .PHONY: help up dev stop restart open install env build start check test watch \
         typecheck lint fix migrate generate seed studio reset backup sql mcp \
-        mcp-add mcp-desktop ai-check docker-build docker-up docker-down docker-logs \
+        mcp-add mcp-desktop cert cert-force tls-tailscale ai-check docker-build docker-up docker-down docker-logs \
         docker-shell clean clean-all require-compose
 
 # Primäre LAN-Adresse dieses Rechners — für Clients auf anderen Geräten.
 LAN_IP := $(shell ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($$i=="src") print $$(i+1)}')
+# MagicDNS-Name im Tailnet, falls Tailscale läuft. Das ist der einzige Name, für
+# den es hier ein öffentlich vertrautes Zertifikat geben kann.
+TS_HOST := $(shell tailscale status --json 2>/dev/null | sed -n 's/.*"DNSName": *"\([^"]*\)\.".*/\1/p' | head -1)
 
 ## ---------------------------------------------------------------- Entwicklung
 
@@ -199,31 +202,72 @@ mcp-desktop: ## Claude-Desktop-Konfiguration zum Kopieren ausgeben
 	@echo ""
 	@echo "  2. Diesen Eintrag einfügen:"
 	@echo ""
+ifneq ($(TS_HOST),)
 	@echo '    {'
 	@echo '      "mcpServers": {'
 	@echo '        "chefmind": {'
 	@echo '          "command": "npx",'
-	@echo '          "args": ['
-	@echo '            "-y",'
-	@echo '            "mcp-remote",'
-	@echo '            "http://$(or $(LAN_IP),DEINE-SERVER-IP):$(PORT)/mcp",'
-	@echo '            "--allow-http",'
-	@echo '            "--transport", "http-only"'
-	@echo '          ]'
+	@echo '          "args": ["-y", "mcp-remote", "https://$(TS_HOST)/mcp"]'
 	@echo '        }'
 	@echo '      }'
 	@echo '    }'
 	@echo ""
 	@echo "  3. Claude Desktop vollständig beenden und neu starten."
 	@echo ""
-	@echo "  Aus dem LAN oder über Tailscale ist nichts weiter zu konfigurieren:"
-	@echo "  der Container veröffentlicht den Port auf allen Interfaces, und private"
-	@echo "  Adressen sind erlaubt. Nur eine eigene Domain braucht einen Eintrag in"
-	@echo "  CHEFMIND_ALLOWED_HOSTS."
+	@echo "  Das Zertifikat für $(TS_HOST) stellt Tailscale aus."
+	@echo "  Es ist ein echtes Let's-Encrypt-Zertifikat — auf dem Client ist nichts"
+	@echo "  zu installieren und kein --allow-http nötig. Einmalig auf dem Server:"
+	@echo ""
+	@echo "    make tls-tailscale"
 	@echo ""
 	@echo "  Erreichbarkeit vom anderen Gerät aus prüfen:"
-	@echo "    curl http://$(or $(LAN_IP),DEINE-SERVER-IP):$(PORT)/api/health"
+	@echo "    curl https://$(TS_HOST)/api/health"
+else
+	@echo '    {'
+	@echo '      "mcpServers": {'
+	@echo '        "chefmind": {'
+	@echo '          "command": "npx",'
+	@echo '          "args": ["-y", "mcp-remote", "https://$(or $(LAN_IP),DEINE-SERVER-IP)/mcp"],'
+	@echo '          "env": { "NODE_EXTRA_CA_CERTS": "/PFAD/ZU/ca.crt" }'
+	@echo '        }'
+	@echo '      }'
+	@echo '    }'
 	@echo ""
+	@echo "  3. Claude Desktop vollständig beenden und neu starten."
+	@echo ""
+	@echo "  Hier läuft kein Tailscale. Über die LAN-Adresse ist das Zertifikat"
+	@echo "  selbst signiert, deshalb muss der Client die CA kennen:"
+	@echo ""
+	@echo "    make cert                      # einmalig auf dem Server"
+	@echo "    data/tls/ca.crt                # auf den Client kopieren,"
+	@echo "                                   # Pfad oben bei NODE_EXTRA_CA_CERTS eintragen"
+	@echo ""
+	@echo "  Deutlich einfacher: Tailscale auf beiden Geräten. Dann gibt es ein"
+	@echo "  echtes Zertifikat und der Client braucht gar nichts."
+	@echo ""
+	@echo "  Erreichbarkeit vom anderen Gerät aus prüfen:"
+	@echo "    curl --cacert data/tls/ca.crt https://$(or $(LAN_IP),DEINE-SERVER-IP)/api/health"
+endif
+	@echo ""
+
+cert: ## Selbst signiertes Zertifikat für den LAN-Zugriff erzeugen
+	@./scripts/generate-cert.sh
+
+cert-force: ## Zertifikat neu ausstellen (z. B. nach einem Adresswechsel)
+	@./scripts/generate-cert.sh --force
+
+tls-tailscale: ## HTTPS über das Tailnet einrichten (echtes Zertifikat, auto-erneuert)
+	@if [ -z "$(TS_HOST)" ]; then \
+		echo "Tailscale läuft auf diesem Rechner nicht — 'tailscale up' zuerst."; exit 1; \
+	fi
+	@echo "Richte HTTPS für $(TS_HOST) ein…"
+	@echo "Voraussetzung: im Admin-Panel unter DNS muss 'HTTPS Certificates'"
+	@echo "aktiviert sein — https://login.tailscale.com/admin/dns"
+	@echo ""
+	tailscale serve --bg --https=443 http://127.0.0.1:$(PORT)
+	@echo ""
+	@echo "Erreichbar unter https://$(TS_HOST)/"
+	@echo "Wieder abschalten: tailscale serve --https=443 off"
 
 ai-check: ## KI-Anbieter live testen (ein kurzer Aufruf, Bruchteile eines Cents)
 	@npx tsx --env-file=.env scripts/ai-check.ts

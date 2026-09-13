@@ -4,23 +4,13 @@ services:
     image: chefmind:latest
     container_name: chefmind
     restart: unless-stopped
-    # Published on every interface, so LAN and Tailscale both work without
-    # naming their addresses here. The app itself then refuses any request whose
-    # client address is not private (src/proxy.ts).
-    #
-    # Know what that does and does not buy you. The app reads the client address
-    # from x-forwarded-for, which Next fills in from the socket but which a
-    # client can also send itself. It therefore stops a stray port forward, a
-    # scanner, and anything that arrives by accident — not somebody who can
-    # already reach the port and forges the header. There is NO login here and
-    # /mcp exposes delete_recipe.
-    #
-    # If this host is reachable from the internet, bind the interfaces instead
-    # and delete the line below. That check cannot be forged:
-    #   - "192.168.1.20:3000:3000"     # LAN
-    #   - "100.101.102.103:3000:3000"  # Tailscale
+    # Loopback only. Nothing reaches the app except through something that
+    # terminates TLS: the caddy service below for the LAN, or `tailscale serve`
+    # on the host for the tailnet. Both overwrite x-forwarded-for with the real
+    # peer address, which is what makes the private-network check in
+    # src/proxy.ts trustworthy rather than merely advisory.
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       # The SQLite database and every uploaded photo. Back this up; it is all
       # your data, and nothing else in the image is worth keeping.
@@ -38,6 +28,24 @@ services:
 
   # Nightly snapshot of the database, 14 kept. `sqlite3 .backup` is safe on a
   # live database, unlike copying the file while WAL is mid-write.
+  # HTTPS für den Zugriff über die LAN-Adresse. Zertifikat vorher erzeugen:
+  #   make cert      (bzw. ./scripts/generate-cert.sh)
+  # Wer ausschließlich über Tailscale zugreift, braucht diesen Dienst nicht und
+  # kann ihn löschen — `tailscale serve` bringt ein echtes Zertifikat mit.
+  caddy:
+    image: caddy:2-alpine
+    container_name: chefmind-caddy
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./data/tls:/tls:ro
+    depends_on:
+      chefmind:
+        condition: service_healthy
+
   backup:
     image: chefmind:latest
     container_name: chefmind-backup

@@ -86,11 +86,32 @@ Konfiguration alle Namen, die niemand öffentlich registrieren kann: private
 IP-Literale, Hostnamen ohne Punkt, `.local`, `.lan`, `.internal`, `.home.arpa`
 und `.ts.net`. Eine echte Domain braucht `CHEFMIND_ALLOWED_HOSTS`.
 
-**Grenzen der Adressprüfung:** sie liest `x-forwarded-for`. Next füllt den Header
-aus der Verbindung, wenn der Client keinen mitschickt — schickt er einen, wird
-dieser unverändert durchgereicht. Die Prüfung ist deshalb ein Leitplanke gegen
-Scanner und Fehlkonfiguration, **keine Grenze** gegen jemanden, der den Port
-ohnehin erreicht. Die echte Grenze ist das Port-Binding in `docker-compose.yml`.
+**Wie belastbar die Adressprüfung ist, hängt davor ab.** Sie liest
+`x-forwarded-for`. Im ausgelieferten Aufbau lauscht die App nur auf Loopback und
+alles kommt über Caddy oder `tailscale serve` — beide überschreiben den Header
+mit der echten Gegenstelle, er ist dann nicht fälschbar. Wer stattdessen den
+App-Port direkt veröffentlicht, verliert das: Next füllt den Header nur, wenn
+der Client keinen mitschickt, einem selbst gesetzten glaubt es. Dann ist die
+Prüfung nur noch eine Leitplanke gegen Scanner und Fehlkonfiguration.
+
+## HTTPS und Portionen
+
+TLS wird **nicht** in Next terminiert — `next start` kann das in Produktion
+nicht. Davor steht entweder `tailscale serve` (echtes Let's-Encrypt-Zertifikat
+für den `.ts.net`-Namen, erneuert sich selbst) oder der `caddy`-Dienst aus der
+Compose-Datei mit einem selbst signierten Zertifikat aus
+`scripts/generate-cert.sh`. Für eine private IP kann es gar nichts anderes
+geben: keine öffentliche CA kann sie validieren.
+
+Gebraucht wird HTTPS nicht aus Prinzip, sondern weil Claude Desktop MCP-Server
+nur darüber anspricht und Service Worker außerhalb von `localhost` einen
+sicheren Kontext verlangen.
+
+Rezepte öffnen sich mit `CHEFMIND_DEFAULT_SERVINGS` (Standard 4) statt mit ihrer
+eigenen Portionszahl — aber nur, wenn sie überhaupt in Portionen rechnen.
+`initialServings()` lässt alles andere in Ruhe: ein Hefezopf mit 12 Scheiben und
+„1 Zopf, ca. 35 cm" ist nichts, wovon man vier backt. Die gespeicherte Basis
+bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
 
 ## Was leicht kaputtgeht
 
