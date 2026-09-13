@@ -81,3 +81,25 @@ export function scaleRecipe(
     nutritionPerServing: recipe.nutrition,
   };
 }
+
+/** Fallback when nothing is configured: most households cook for four. */
+export const DEFAULT_HOUSEHOLD_SERVINGS = 4;
+
+/**
+ * The portion count a recipe should open at.
+ *
+ * Opening every recipe at its own base servings means constantly re-dialling to
+ * the number you actually cook for. So recipes measured in portions open at the
+ * household default instead, with the original still shown next to the stepper.
+ *
+ * Anything measured in something else keeps its own number. A Hefezopf stored
+ * as 12 Scheiben with "1 Zopf, ca. 35 cm" is not a thing you bake four of, and
+ * silently rescaling it to 4 would produce a third of a loaf.
+ */
+export function initialServings(
+  recipe: Pick<Recipe, 'baseServings' | 'servingUnit'>,
+  householdServings: number,
+): number {
+  if (recipe.servingUnit !== 'portion') return recipe.baseServings;
+  return householdServings > 0 ? householdServings : recipe.baseServings;
+}

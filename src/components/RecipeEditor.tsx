@@ -8,6 +8,7 @@ import { PICKER_UNITS, UNITS } from '@/domain/units/units';
 import { parseIngredientList } from '@/domain/units/parse';
 import { formatQuantity } from '@/domain/units/format';
 import { suggestScalingPolicy } from '@/domain/scaling/policy';
+import { DEFAULT_HOUSEHOLD_SERVINGS } from '@/domain/recipe/derive';
 import {
   categorizeIngredient, CATEGORY_LABELS, GROCERY_CATEGORIES, type GroceryCategory,
 } from '@/domain/shopping/categories';
@@ -224,7 +225,7 @@ export function RecipeEditor({ recipe }: { recipe?: Recipe }) {
       title: String(formData.get('title') ?? '').trim(),
       subtitle: String(formData.get('subtitle') ?? '') || null,
       description: String(formData.get('description') ?? '') || null,
-      baseServings: parseGermanNumber(String(formData.get('baseServings') ?? '')) ?? 4,
+      baseServings: parseGermanNumber(String(formData.get('baseServings') ?? '')) ?? DEFAULT_HOUSEHOLD_SERVINGS,
       servingUnit: (String(formData.get('servingUnit') ?? 'portion') || 'portion') as
         'portion' | 'stueck' | 'scheibe' | 'glas' | 'liter',
       yieldNote: String(formData.get('yieldNote') ?? '') || null,
@@ -310,7 +311,7 @@ export function RecipeEditor({ recipe }: { recipe?: Recipe }) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Field label="Menge" required>
             <input name="baseServings" type="number" min="0.5" step="0.5" inputMode="decimal"
-              defaultValue={recipe?.baseServings ?? 4} required className={inputClass} />
+              defaultValue={recipe?.baseServings ?? DEFAULT_HOUSEHOLD_SERVINGS} required className={inputClass} />
           </Field>
           <Field label="Einheit">
             <select name="servingUnit" defaultValue={recipe?.servingUnit ?? 'portion'} className={inputClass}>

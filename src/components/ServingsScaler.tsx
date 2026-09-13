@@ -20,8 +20,12 @@ import { Badge, buttonClass, TEMPERATURE_MODE_LABELS } from './ui';
  * it always started cooking mode at the recipe's base servings, quietly undoing
  * the scaling you had just done.
  */
-export function ServingsScaler({ recipe }: { recipe: Recipe }) {
-  const [servings, setServings] = useState(recipe.baseServings);
+export function ServingsScaler({ recipe, initialServings }: {
+  recipe: Recipe;
+  /** What to open at — the household default, not necessarily the recipe's own. */
+  initialServings: number;
+}) {
+  const [servings, setServings] = useState(initialServings);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const scaled = useMemo(() => scaleRecipe(recipe, servings), [recipe, servings]);

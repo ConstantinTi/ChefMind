@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getRecipe } from '@/services/recipes';
+import { initialServings } from '@/domain/recipe/derive';
+import { householdServings } from '@/lib/settings';
 import { ServingsScaler } from '@/components/ServingsScaler';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ConfirmSubmit, PrintButton, SubmitButton } from '@/components/forms';
@@ -125,7 +127,7 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ s
         ) : null}
       </header>
 
-      <ServingsScaler recipe={recipe} />
+      <ServingsScaler recipe={recipe} initialServings={initialServings(recipe, householdServings())} />
 
       {recipe.notes ? (
         <section className="mt-8 max-w-prose">
