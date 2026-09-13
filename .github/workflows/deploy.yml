@@ -48,6 +48,30 @@ jobs:
 
           exit $fehler
 
+      # actions/checkout führt `git clean -ffdx` aus. Das -x entfernt auch
+      # ignorierte Dateien — und ./data ist ignoriert. Läge die Datenbank im
+      # Workspace, würde jeder Deploy Rezepte, Fotos, Backups und die TLS-CA
+      # löschen. Deshalb liegt sie daneben und überlebt jeden Checkout.
+      - name: Datenverzeichnis außerhalb des Checkouts
+        run: |
+          DATA_DIR="$HOME/chefmind-data"
+          mkdir -p "$DATA_DIR"
+          echo "CHEFMIND_DATA_DIR=$DATA_DIR" >> "$GITHUB_ENV"
+          echo "Daten liegen in: $DATA_DIR"
+
+          # Einmalige Übernahme, falls aus einem früheren Deploy noch etwas im
+          # Workspace liegt. Nur wenn am Ziel noch nichts steht.
+          if [ -f ./data/chefmind.db ] && [ ! -f "$DATA_DIR/chefmind.db" ]; then
+            echo "Übernehme vorhandene Daten aus dem Workspace…"
+            cp -a ./data/. "$DATA_DIR/"
+          fi
+
+          if [ -f "$DATA_DIR/chefmind.db" ]; then
+            echo "Vorhandene Datenbank: $(du -h "$DATA_DIR/chefmind.db" | cut -f1)"
+          else
+            echo "Noch keine Datenbank — wird beim ersten Start angelegt."
+          fi
+
       - name: .env prüfen
         run: |
           if [ ! -f .env ]; then

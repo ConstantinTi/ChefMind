@@ -121,6 +121,10 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   machen verändert den Kuchen.
 - Zeiten und Temperaturen skalieren nie mit.
 - `better-sqlite3` braucht `serverExternalPackages` in `next.config.ts`.
+- **Das Datenverzeichnis darf auf dem Server nicht im Checkout liegen.**
+  `actions/checkout` führt `git clean -ffdx` aus, und `-x` löscht auch
+  ignorierte Dateien — `./data` ist ignoriert. Jeder Deploy würde Datenbank,
+  Fotos, Backups und die TLS-CA mitnehmen. Dafür gibt es `CHEFMIND_DATA_DIR`.
 - **Die Palette gehört nicht in `@theme`.** Tailwind v4 zieht jeden `@theme`-Block
   in ein gemeinsames `:root` und wirft die umgebende Media Query weg — ein zweiter
   `@theme` in `prefers-color-scheme: dark` überschreibt damit die hellen Werte für

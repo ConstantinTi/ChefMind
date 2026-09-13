@@ -14,7 +14,13 @@ services:
     volumes:
       # The SQLite database and every uploaded photo. Back this up; it is all
       # your data, and nothing else in the image is worth keeping.
-      - ./data:/data
+      #
+      # CHEFMIND_DATA_DIR must point OUTSIDE the git checkout on a server that
+      # deploys from CI. actions/checkout runs `git clean -ffdx`, which deletes
+      # ignored files as well — and ./data is ignored, so leaving it here means
+      # every deploy silently destroys the database, the photos, the backups and
+      # the TLS CA. ./data is fine for local development.
+      - ${CHEFMIND_DATA_DIR:-./data}:/data
     env_file:
       - .env
     environment:
@@ -41,7 +47,7 @@ services:
       - "80:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./data/tls:/tls:ro
+      - ${CHEFMIND_DATA_DIR:-./data}/tls:/tls:ro
     depends_on:
       chefmind:
         condition: service_healthy
@@ -63,7 +69,7 @@ services:
     healthcheck:
       disable: true
     volumes:
-      - ./data:/data
+      - ${CHEFMIND_DATA_DIR:-./data}:/data
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |

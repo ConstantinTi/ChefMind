@@ -101,6 +101,7 @@ Alles über `.env`, Vorlage in `.env.example`.
 
 | Variable | Bedeutung |
 |---|---|
+| `CHEFMIND_DATA_DIR` | Verzeichnis für Datenbank, Fotos und Zertifikate (Compose) |
 | `CHEFMIND_DB_PATH` | Pfad zur SQLite-Datei |
 | `CHEFMIND_UPLOAD_DIR` | Ablage der Fotos |
 | `CHEFMIND_AI_PROVIDER` | `anthropic`, `openrouter` oder `none` |
@@ -318,9 +319,21 @@ Der Port ist absichtlich auf `127.0.0.1` gebunden. Für den Zugriff aus dem LAN 
 `CHEFMIND_ALLOWED_HOSTS` ergänzen. **Nicht ins offene Internet stellen** — es gibt
 kein Login.
 
+### Wo die Daten liegen
+
+`CHEFMIND_DATA_DIR` bestimmt das Verzeichnis; ohne Angabe `./data`, was für die
+lokale Entwicklung richtig ist.
+
+**Auf einem Server, der über CI deployt, muss es außerhalb des Checkouts
+liegen.** `actions/checkout` führt `git clean -ffdx` aus, und das `-x` entfernt
+auch ignorierte Dateien — `./data` ist ignoriert. Läge die Datenbank dort, würde
+jeder Deploy Rezepte, Fotos, Backups **und** die TLS-CA löschen. Der Workflow
+setzt deshalb `CHEFMIND_DATA_DIR=$HOME/chefmind-data` und übernimmt beim ersten
+Lauf, was noch im Workspace liegt.
+
 ### Datensicherung
 
-Alles liegt in `./data`: die SQLite-Datei und die Fotos. Ein Backup-Container legt
+Alles liegt in `$CHEFMIND_DATA_DIR`: die SQLite-Datei und die Fotos. Ein Backup-Container legt
 nächtlich einen Snapshot nach `data/backups/` und behält 14 Stück. Ein manuelles
 Backup:
 

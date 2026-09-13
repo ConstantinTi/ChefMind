@@ -18,7 +18,9 @@
 # Zusätzliche Namen/Adressen über CHEFMIND_TLS_HOSTS (kommagetrennt).
 set -euo pipefail
 
-TLS_DIR="${CHEFMIND_TLS_DIR:-./data/tls}"
+# Folgt dem Datenverzeichnis, damit CA und Schlüssel dort liegen, wo auch die
+# Datenbank liegt — und nicht im Checkout, den jeder Deploy leerräumt.
+TLS_DIR="${CHEFMIND_TLS_DIR:-${CHEFMIND_DATA_DIR:-./data}/tls}"
 CA_DAYS=3650
 # 825 Tage ist das Maximum, das Apple-Plattformen für Serverzertifikate
 # akzeptieren. Alles darüber wird von Safari und iOS kommentarlos abgelehnt.
