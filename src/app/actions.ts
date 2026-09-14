@@ -14,6 +14,7 @@ import * as shoppingService from '@/services/shopping';
 import * as importService from '@/services/import';
 import * as photoService from '@/services/photos';
 import { fromForm, fromFormWithBooleans } from '@/lib/forms';
+import { formatBytes, MAX_PHOTO_BYTES, MAX_UPLOAD_BYTES } from '@/lib/upload-limits';
 
 /**
  * Server actions are thin adapters: validate, call the service, invalidate the
@@ -123,12 +124,25 @@ export async function uploadRecipePhotosAction(recipeId: string, slug: string, f
   const files = formData.getAll('photos').filter((f): f is File => f instanceof File && f.size > 0);
   if (!files.length) return;
 
+  // Der Request ist schon durch Next' bodySizeLimit gekommen, wenn wir hier
+  // sind — diese Prüfung sagt nur, was das Formular auch sagt, für alles, was
+  // nicht durch das Formular kommt.
+  const total = files.reduce((sum, file) => sum + file.size, 0);
+  if (total > MAX_UPLOAD_BYTES) {
+    throw new Error(
+      `Zusammen ${formatBytes(total)} — pro Upload sind ${formatBytes(MAX_UPLOAD_BYTES)} möglich.`,
+    );
+  }
+
   const buffers: Buffer[] = [];
   for (const file of files) {
     // An empty type shows up for HEIC on some Android browsers; sharp sniffs
     // the real format anyway, so only reject types we know we cannot read.
     if (file.type && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
       throw new Error(`Nicht unterstütztes Bildformat: ${file.type}`);
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      throw new Error(`„${file.name}“ ist zu groß (max. ${formatBytes(MAX_PHOTO_BYTES)}).`);
     }
     buffers.push(Buffer.from(await file.arrayBuffer()));
   }

@@ -2,6 +2,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, normalize, resolve, sep } from 'node:path';
 import { ulid } from 'ulid';
 import sharp from 'sharp';
+import { formatBytes, MAX_PHOTO_BYTES } from './upload-limits';
 
 // turbopackIgnore keeps Next from statically tracing the whole project into the
 // standalone bundle: this path is resolved at runtime from the environment, so
@@ -17,11 +18,9 @@ export interface StoredPhoto {
   height: number;
 }
 
-const MAX_BYTES = 25 * 1024 * 1024;
-
 export async function storePhoto(bytes: Buffer): Promise<StoredPhoto> {
-  if (bytes.byteLength > MAX_BYTES) {
-    throw new Error('Bild ist zu groß (max. 25 MB).');
+  if (bytes.byteLength > MAX_PHOTO_BYTES) {
+    throw new Error(`Bild ist zu groß (max. ${formatBytes(MAX_PHOTO_BYTES)}).`);
   }
 
   const id = ulid();

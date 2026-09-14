@@ -142,6 +142,14 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   deprecated. Sie muss neben `app/` liegen, in diesem Projekt also unter `src/`,
   sonst wird sie stillschweigend ignoriert. Im Build-Output taucht sie als
   „ƒ Proxy (Middleware)" auf; fehlt die Zeile, greift der Zugriffsschutz nicht.
+- **Fotos gehen über einen Server Action, und dessen Body ist auf 1 MB gedeckelt.**
+  Ein Handyfoto wiegt 2–6 MB, also scheiterte jeder Upload — an einer Grenze, die
+  Next setzt, nicht diese App. Sichtbar war davon nur „Minified React error #441":
+  Next reicht den 413 als Server-Fehler an die Error Boundary weiter und
+  verschluckt den Text in Produktion. Die Grenzen stehen in
+  `src/lib/upload-limits.ts` und werden von `next.config.ts`, dem Action und dem
+  Formular gelesen. Der Import läuft über `/api/import`, einen Route Handler —
+  der kennt diese Grenze nicht, weshalb Fotos beim Import immer funktionierten.
 - Der Kochmodus-Link muss die aktuell gewählte Portionszahl mitgeben. Er lebt
   deshalb im `ServingsScaler` und nicht im Seitenkopf.
 

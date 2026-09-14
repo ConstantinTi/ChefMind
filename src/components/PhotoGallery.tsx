@@ -7,6 +7,30 @@ import {
 } from '@/app/actions';
 import { ConfirmSubmit, SubmitButton } from './forms';
 import { buttonClass, Card } from './ui';
+import { formatBytes, MAX_PHOTO_BYTES, MAX_UPLOAD_BYTES } from '@/lib/upload-limits';
+
+/**
+ * Was an der Auswahl nicht hochladbar ist, oder `null`.
+ *
+ * Diese Prüfung gehört hierher und nicht nur auf den Server: der Upload läuft
+ * über einen Server Action, und wer dessen Body-Grenze reißt, bekommt keinen
+ * Fehler aus dieser App zu sehen, sondern einen 413 von Next — in Produktion
+ * als minifizierter React-Fehler ohne Text. Hier kann noch jemand erklären,
+ * was zu tun ist.
+ */
+function whatIsTooBig(files: readonly File[]): string | null {
+  const oversized = files.find((f) => f.size > MAX_PHOTO_BYTES);
+  if (oversized) {
+    return `„${oversized.name}“ ist ${formatBytes(oversized.size)} groß — pro Bild sind `
+      + `${formatBytes(MAX_PHOTO_BYTES)} möglich.`;
+  }
+  const total = files.reduce((sum, f) => sum + f.size, 0);
+  if (total > MAX_UPLOAD_BYTES) {
+    return `${files.length} Bilder mit zusammen ${formatBytes(total)} — pro Upload sind `
+      + `${formatBytes(MAX_UPLOAD_BYTES)} möglich. Bitte in kleineren Gruppen hochladen.`;
+  }
+  return null;
+}
 
 /*
  * eslint-disable @next/next/no-img-element --
@@ -25,6 +49,7 @@ export function PhotoGallery({ recipeId, slug, photos, heroPhotoId, title }: {
   const hero = photos.find((p) => p.id === heroPhotoId) ?? photos[0];
   const [activeId, setActiveId] = useState<string | null>(hero?.id ?? null);
   const [managing, setManaging] = useState(false);
+  const [tooBig, setTooBig] = useState<string | null>(null);
 
   const active = photos.find((p) => p.id === activeId) ?? hero;
 
@@ -86,9 +111,17 @@ export function PhotoGallery({ recipeId, slug, photos, heroPhotoId, title }: {
                 accept="image/*"
                 multiple
                 required
+                onChange={(e) => setTooBig(whatIsTooBig(Array.from(e.target.files ?? [])))}
                 className="block w-full text-sm file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-line file:bg-card file:px-3 file:py-2 file:text-sm"
               />
-              <SubmitButton pendingLabel="Wird hochgeladen…">Hochladen</SubmitButton>
+              {tooBig ? (
+                <p className="rounded-lg border border-warn-line bg-warn-bg px-3 py-2 text-sm">
+                  {tooBig}
+                </p>
+              ) : null}
+              <SubmitButton pendingLabel="Wird hochgeladen…" disabled={tooBig !== null}>
+                Hochladen
+              </SubmitButton>
             </form>
 
             {active ? (

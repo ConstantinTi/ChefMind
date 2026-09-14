@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { SERVER_ACTION_BODY_LIMIT } from './src/lib/upload-limits';
 
 const nextConfig: NextConfig = {
   // Produces .next/standalone — a self-contained server bundle for the Docker image.
@@ -12,6 +13,17 @@ const nextConfig: NextConfig = {
   // We generate exactly two image sizes ourselves at upload time, so Next's
   // optimizer would only add weight to the runtime.
   images: { unoptimized: true },
+
+  experimental: {
+    serverActions: {
+      // Fotos werden über einen Server Action hochgeladen, und der Body ist
+      // ohne diese Zeile auf 1 MB begrenzt — weniger als ein Handyfoto. Jedes
+      // Bild scheiterte daran mit "Minified React error #441", weil Next den
+      // 413 als Server-Fehler an die Error Boundary weiterreicht und die echte
+      // Meldung in Produktion verschluckt. Do not remove.
+      bodySizeLimit: SERVER_ACTION_BODY_LIMIT,
+    },
+  },
 };
 
 export default nextConfig;
