@@ -27,6 +27,19 @@ export const MAX_UPLOAD_BYTES = 50 * MB;
  */
 export const SERVER_ACTION_BODY_LIMIT: `${number}mb` = `${MAX_UPLOAD_BYTES / MB + 2}mb`;
 
+/**
+ * Wie viel Body Next überhaupt puffert — und damit die Grenze, die als erste
+ * greift.
+ *
+ * Sobald `src/proxy.ts` existiert, klont Next jeden Request-Body, damit er
+ * zweimal gelesen werden kann, und begrenzt das hier (Standard 10 MB). Darüber
+ * schlägt der Request nicht fehl: die Route bekommt einen **abgeschnittenen**
+ * Body, und `request.formData()` stirbt mit „Failed to parse body as FormData".
+ * Diese Grenze gilt für Server Actions und Route Handler gleichermaßen, also
+ * nützt ein großzügiges `SERVER_ACTION_BODY_LIMIT` ohne sie nichts.
+ */
+export const PROXY_BODY_LIMIT = MAX_UPLOAD_BYTES + 2 * MB;
+
 /** "4,4 MB" — für Meldungen, die eine Zahl nennen müssen, damit sie hilft. */
 export function formatBytes(bytes: number): string {
   if (bytes < MB) return `${Math.round(bytes / 1024)} KB`;

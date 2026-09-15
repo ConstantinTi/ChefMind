@@ -82,3 +82,53 @@ export async function deletePhotoFiles(keys: ReadonlyArray<string | null>): Prom
     await rm(full, { force: true });
   }));
 }
+
+/**
+ * Shrinks an image to something a vision model will actually accept.
+ *
+ * Two hard reasons, one soft one:
+ *
+ *  - The API rejects any single image whose base64 payload exceeds 10 MiB. An
+ *    11 MB screenshot straight off a phone fails with a raw 400, which is what
+ *    the import screen used to show the cook.
+ *  - Claude downsamples anything longer than 1568px on its long edge before it
+ *    looks at it, so sending more pixels buys literally nothing.
+ *  - Fewer pixels means fewer image tokens, so it is also cheaper and faster.
+ *
+ * `.rotate()` applies the EXIF orientation first. Without it a photo taken in
+ * portrait arrives sideways and the model reads a rotated cookbook page.
+ *
+ * This is separate from the resizing in `storePhoto`: that one keeps a good
+ * copy for the recipe page, this one produces a payload for the model.
+ */
+const VISION_MAX_EDGE = 1568;
+/** Well under the API's 10 MiB, so eight of them still fit in one request. */
+const VISION_MAX_BASE64 = 3 * 1024 * 1024;
+
+export interface VisionImage {
+  base64: string;
+  mediaType: 'image/jpeg';
+}
+
+export async function prepareForVision(bytes: Buffer): Promise<VisionImage> {
+  let edge = VISION_MAX_EDGE;
+  let quality = 82;
+
+  // Normally the first pass is already far below the cap. The loop is for the
+  // pathological case: a huge, noisy photo that JPEG cannot compress.
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const out = await sharp(bytes, { failOn: 'none' })
+      .rotate()
+      .resize(edge, edge, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality, mozjpeg: true })
+      .toBuffer();
+
+    const base64 = out.toString('base64');
+    if (base64.length <= VISION_MAX_BASE64) return { base64, mediaType: 'image/jpeg' };
+
+    quality = Math.max(40, quality - 15);
+    edge = Math.round(edge * 0.75);
+  }
+
+  throw new Error('Bild lässt sich nicht klein genug rechnen — bitte einen Ausschnitt fotografieren.');
+}

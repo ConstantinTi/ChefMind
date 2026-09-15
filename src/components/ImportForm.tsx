@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { buttonClass, inputClass, Card } from './ui';
+import { downscaleAll } from '@/lib/downscale';
 import { Spinner } from './forms';
 
 type Mode = 'url' | 'recipe' | 'dish' | 'text';
@@ -48,6 +49,15 @@ export function ImportForm({ aiConfigured }: { aiConfigured: boolean }) {
     setResult(null);
 
     const form = new FormData(event.currentTarget);
+
+    // Replace the raw files with shrunken ones before anything is sent.
+    const originals = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
+    if (originals.length) {
+      const shrunk = await downscaleAll(originals);
+      form.delete('images');
+      for (const file of shrunk) form.append('images', file);
+    }
+
     form.set('mode', mode);
     // Always save straight away: the recipe then opens on its own page, which is
     // where the import's warnings now live. A draft that exists only in memory

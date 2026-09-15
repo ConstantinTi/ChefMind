@@ -11,7 +11,7 @@ import { RecipeInputSchema } from '@/contracts/common';
 import { extractReadableText, extractRecipeFromHtml, JsonLdNotFoundError } from '@/lib/import/jsonld';
 import { aiRecipeToDraft } from '@/lib/ai/schemas';
 import { getAiProvider, type ImageInput } from '@/lib/ai/provider';
-import { storePhoto, type StoredPhoto } from '@/lib/photos';
+import { prepareForVision, storePhoto, type StoredPhoto } from '@/lib/photos';
 import { createRecipe, getRecipe } from './recipes';
 
 export interface ImportResult {
@@ -226,11 +226,13 @@ export async function importFromPhotos(args: PhotoImportArgs): Promise<ImportRes
   if (!args.images.length) throw new Error('Kein Bild übergeben.');
 
   const provider = await getAiProvider();
-  const ai = await provider.extractFromImages(
-    args.images.map((i) => ({ base64: i.bytes.toString('base64'), mediaType: i.mediaType })),
-    args.mode,
-    args.hint,
-  );
+
+  // Shrink before sending, never after. The original is kept on disk at full
+  // size by storePhoto below; what goes to the model is a 1568px JPEG, which
+  // is all it can see anyway and keeps every image under the API's size cap.
+  const visionImages = await Promise.all(args.images.map((i) => prepareForVision(i.bytes)));
+
+  const ai = await provider.extractFromImages(visionImages, args.mode, args.hint);
 
   const draft = draftToRecipeInput(aiRecipeToDraft(ai, {
     sourceType: args.mode === 'dish' ? 'ai' : 'photo',
@@ -249,27 +251,46 @@ export async function importFromPhotos(args: PhotoImportArgs): Promise<ImportRes
 
   // Keep the source photos with the recipe — they are the audit trail for the
   // transcription, and the best illustration the recipe will ever have.
+  //
+  // But never at the cost of the import. The recipe is the valuable part and it
+  // is already saved by this point; a photo that will not store is worth a note,
+  // not a 500 that makes a successful extraction look like a total failure while
+  // quietly leaving the recipe behind.
+  const photoWarnings: string[] = [];
   if (recipe) {
-    const stored: StoredPhoto[] = [];
-    for (const image of args.images) stored.push(await storePhoto(image.bytes));
-    if (stored.length) {
-      const inserted = await db.insert(photos).values(
-        stored.map((p, i) => ({
-          recipeId: recipe.id,
-          storageKey: p.storageKey,
-          thumbKey: p.thumbKey,
-          width: p.width,
-          height: p.height,
-          sortOrder: i,
-        })),
-      ).returning({ id: photos.id });
-      if (inserted[0]) {
-        await db.update(recipes).set({ heroPhotoId: inserted[0].id }).where(eq(recipes.id, recipe.id));
+    try {
+      const stored: StoredPhoto[] = [];
+      for (const image of args.images) stored.push(await storePhoto(image.bytes));
+      if (stored.length) {
+        const inserted = await db.insert(photos).values(
+          stored.map((p, i) => ({
+            recipeId: recipe.id,
+            storageKey: p.storageKey,
+            thumbKey: p.thumbKey,
+            width: p.width,
+            height: p.height,
+            sortOrder: i,
+          })),
+        ).returning({ id: photos.id });
+        if (inserted[0]) {
+          await db.update(recipes).set({ heroPhotoId: inserted[0].id }).where(eq(recipes.id, recipe.id));
+        }
       }
+    } catch (error) {
+      const why = error instanceof Error ? error.message : 'unbekannter Fehler';
+      photoWarnings.push(`Das Rezept wurde gespeichert, die Originalfotos aber nicht: ${why}`);
     }
   }
 
-  return { draft, recipe, method: 'ai-photo', confidence: ai.confidence, warnings };
+  const allWarnings = [...warnings, ...photoWarnings];
+
+  // The banner is driven by what was stored on the recipe, so a photo problem
+  // has to land there too rather than only in this response.
+  if (recipe && photoWarnings.length) {
+    await db.update(recipes).set({ importWarnings: allWarnings }).where(eq(recipes.id, recipe.id));
+  }
+
+  return { draft, recipe, method: 'ai-photo', confidence: ai.confidence, warnings: allWarnings };
 }
 
 /** Re-estimates nutrition for a saved recipe and stores the result. */

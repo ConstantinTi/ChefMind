@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next';
-import { SERVER_ACTION_BODY_LIMIT } from './src/lib/upload-limits';
+import { PROXY_BODY_LIMIT, SERVER_ACTION_BODY_LIMIT } from './src/lib/upload-limits';
 
 const nextConfig: NextConfig = {
   // Produces .next/standalone — a self-contained server bundle for the Docker image.
@@ -23,6 +23,13 @@ const nextConfig: NextConfig = {
       // Meldung in Produktion verschluckt. Do not remove.
       bodySizeLimit: SERVER_ACTION_BODY_LIMIT,
     },
+
+    // Zweite, unabhängige Grenze — und die greift zuerst. Weil `src/proxy.ts`
+    // existiert, klont Next jeden Request-Body zum Zwischenspeichern und
+    // deckelt das hier; der Standard sind 10 MB. Darüber schlägt der Request
+    // NICHT fehl, die Route bekommt einen abgeschnittenen Body. Ohne diese
+    // Zeile nützt das großzügige bodySizeLimit oben also nichts. Do not remove.
+    proxyClientMaxBodySize: PROXY_BODY_LIMIT,
   },
 };
 

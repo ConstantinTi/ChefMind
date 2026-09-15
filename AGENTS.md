@@ -138,6 +138,24 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   (`scaling`, `category`, `rounding`, `note`). Lässt man sie weg, leitet der Service
   sie neu her und verwirft still jede Übersteuerung — einen Tippfehler zu
   korrigieren würde dann ändern, wie das Rezept skaliert.
+- **`src/proxy.ts` zu haben, deckelt jeden Request-Body.** Sobald ein Proxy
+  existiert, klont Next jeden Body zum Zwischenspeichern und begrenzt das auf
+  `experimental.proxyClientMaxBodySize` (Standard 10 MB). Darüber schlägt der
+  Request **nicht** fehl — die Route bekommt einen **abgeschnittenen** Body, und
+  `request.formData()` stirbt mit „Failed to parse body as FormData". Genau so
+  hat die Zugriffsprüfung den Fotoimport lahmgelegt. Das Limit steht deshalb in
+  `next.config.ts` und wird über `env` zur Laufzeit lesbar gemacht, damit die
+  Route einen zu großen Upload mit einem Satz ablehnt statt ihn zu halbieren.
+- **Bilder gehen nie unverkleinert an das Modell.** `prepareForVision()` rechnet
+  auf 1568 px längste Kante herunter — mehr sieht Claude ohnehin nicht an, und
+  ein einzelnes Bild darf base64 keine 10 MiB überschreiten, sonst kommt ein
+  rohes 400 zurück. `.rotate()` muss dabei sein, sonst liegt ein Hochformatfoto
+  quer vor dem Modell. Der Browser verkleinert zusätzlich vor dem Upload; das
+  ist eine Frage der Leitung, nicht des Modells.
+- **Ein Teilerfolg darf nicht als Totalausfall erscheinen.** Beim Fotoimport ist
+  das Rezept längst gespeichert, wenn die Fotoablage dran ist. Scheitert sie,
+  wird das als Hinweis vermerkt — nicht als 500, der eine gelungene Extraktion
+  wie einen Fehlschlag aussehen lässt und das Rezept still zurücklässt.
 - In Next 16 heißt die Datei `proxy.ts`, nicht `middleware.ts` — letztere ist
   deprecated. Sie muss neben `app/` liegen, in diesem Projekt also unter `src/`,
   sonst wird sie stillschweigend ignoriert. Im Build-Output taucht sie als
