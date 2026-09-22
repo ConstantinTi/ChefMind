@@ -190,7 +190,10 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   Source Maps (`productionBrowserSourceMaps` und `experimental.serverSourceMaps`
   in `next.config.ts`). Die Voraussetzungsprüfung im Deploy-Workflow schreibt
   die Speicherzahlen vor dem Build ins Log, damit der nächste 137er sich selbst
-  erklärt.
+  erklärt. Gemessen hat der Rechner 2048 MB RAM, davon 1610 MB verfügbar, plus
+  278 MB freien Swap — 1888 MB nutzbar gegen 1966 MB Bedarf. Genau die 78 MB,
+  an denen es lag. Mit 1,66 GB bleiben jetzt ~230 MB Luft; das ist wenig, und
+  der nächste größere Import kann es wieder kippen.
 - Der Kochmodus-Link muss die aktuell gewählte Portionszahl mitgeben. Er lebt
   deshalb im `ServingsScaler` und nicht im Seitenkopf.
 

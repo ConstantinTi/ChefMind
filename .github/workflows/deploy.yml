@@ -55,10 +55,14 @@ jobs:
             echo "Speicher (MB):"
             free -m
             verfuegbar=$(free -m | awk '/^Mem:/ {print $7}')
-            swap=$(free -m | awk '/^Swap:/ {print $2}')
-            echo "Verfügbar: ${verfuegbar} MB + ${swap} MB Swap, CPUs: $(nproc)"
-            if [ "$((verfuegbar + swap))" -lt 2048 ]; then
-              echo "WARNUNG: unter 2 GB nutzbar. Der Build braucht ~1,6 GB —"
+            # Freier Swap, nicht der gesamte: beim ersten Lauf waren 233 der
+            # 512 MB schon belegt. Mit der Gesamtzahl hätte die Prüfung 2122 MB
+            # gemeldet und geschwiegen, während real 1888 MB zur Verfügung
+            # standen — zu wenig für den Build, der damals 1,92 GB brauchte.
+            swap=$(free -m | awk '/^Swap:/ {print $4}')
+            echo "Nutzbar: ${verfuegbar} MB RAM + ${swap} MB freier Swap, CPUs: $(nproc)"
+            if [ "$((verfuegbar + swap))" -lt 1900 ]; then
+              echo "WARNUNG: unter 1,9 GB nutzbar. Der Build braucht ~1,66 GB —"
               echo "  bricht er mit 'Killed' / exit code 137 ab, war es der"
               echo "  OOM-Killer, kein Fehler im Code. Abhilfe: Swap einrichten,"
               echo "  die laufenden Container vorher stoppen, oder das Image"
