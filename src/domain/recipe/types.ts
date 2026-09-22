@@ -172,6 +172,11 @@ export interface RecipeDraft {
     text: string;
     durationMinutes?: number | null;
     temperatureC?: number | null;
+    temperatureMode?: 'ober_unterhitze' | 'umluft' | 'grill' | 'herd' | null;
+    /** Indices into this draft's `ingredients`, for the per-step panel in
+     *  cooking mode. Only an importer that knows which ingredient a step uses
+     *  can fill these; the AI paths leave them empty. */
+    ingredientIndices?: number[];
   }>;
   tags?: string[];
   nutrition?: Omit<Nutrition, 'source'> | null;

@@ -12,7 +12,8 @@ Container, ein Volume.
 
 - **Rezepte verwalten** — anlegen, bearbeiten, löschen, durchsuchen (auch nach Zutaten)
 - **Portionen umrechnen**, ohne dass das Ergebnis unbrauchbar wird (siehe unten)
-- **Importieren** aus einer URL, von einem Foto oder aus kopiertem Text
+- **Importieren** aus einer URL, von einem Foto oder aus kopiertem Text —
+  KptnCook-Links vollständig, samt aller Schritte und Bild
 - **Wochenplan** mit Frühstück/Mittag/Abend/Snack
 - **Einkaufsliste**, die gleiche Zutaten über alle Rezepte hinweg zusammenfasst
   und nach Warengruppen sortiert
@@ -109,6 +110,8 @@ Alles über `.env`, Vorlage in `.env.example`.
 | `OPENROUTER_API_KEY` | Key für OpenRouter |
 | `CHEFMIND_AI_MODEL` | Modell — bei Anthropic optional (Standard `claude-opus-5`), bei OpenRouter Pflicht |
 | `CHEFMIND_DEFAULT_SERVINGS` | Portionszahl, mit der Rezepte sich öffnen (Standard 4) |
+| `CHEFMIND_KPTNCOOK_API_KEY` | Nur nötig, wenn KptnCook seinen Schlüssel wechselt |
+| `CHEFMIND_KPTNCOOK_LANG` | Sprache der KptnCook-Rezepte, Standard `de` |
 | `CHEFMIND_TLS_HOSTS` | Zusätzliche Namen im selbst signierten Zertifikat |
 | `CHEFMIND_ALLOW_PUBLIC_ACCESS` | `1` hebt die Beschränkung auf private Adressen auf |
 | `CHEFMIND_ALLOWED_HOSTS` | Zusätzliche Hostnamen **ohne Port** — nur für eine eigene Domain nötig |
@@ -127,6 +130,7 @@ Import kostet je nach Modell etwa 1–3 Cent.
 | Weg | Wie es funktioniert |
 |---|---|
 | **URL** | `schema.org/Recipe` aus der Seite; nur wenn die fehlt, springt die KI ein |
+| **KptnCook-Link** | Über die Schnittstelle der App: alle Schritte, Nährwerte, Bild — ohne KI |
 | **Rezeptfoto** | Kochbuchseite, Rezeptkarte oder Handschrift; mehrere Bilder eines Rezepts werden zusammengesetzt |
 | **Foto vom Gericht** | Die KI erkennt das Gericht und **erfindet** ein passendes Rezept |
 | **Text** | Kopierter Rezepttext |
@@ -135,6 +139,30 @@ Ein aus einem Gerichtsfoto rekonstruiertes Rezept wird als `sourceType: 'ai'`
 gespeichert und überall sichtbar gekennzeichnet — in der Liste, auf der
 Detailseite und in der MCP-Ausgabe. Eine Rekonstruktion darf sich nicht als
 abgeschriebenes Rezept ausgeben.
+
+### KptnCook
+
+Ein in der App geteilter Link (`mobile.kptncook.com/recipe/…`) wird erkannt und
+**nicht** von der Webseite gelesen. Diese Seite ist Absicht eine Vorschau: Titel,
+Portionen, Zeit und alle Zutaten stehen darauf, die Zubereitung bricht nach dem
+dritten Schritt ab und verweist auf die App. Stattdessen fragt ChefMind dieselbe
+Schnittstelle, die die App benutzt, und bekommt das ganze Rezept:
+
+- alle Arbeitsschritte, mit ausgeschriebenen Zeitangaben statt `<timer>`
+- welche Zutat zu welchem Schritt gehört — das füllt den Kochmodus
+- Nährwerte je Portion, Zubereitungs- und Garzeit
+- das Titelbild, das gleich als Foto am Rezept hängt
+- Grundzutaten wie Salz und Pfeffer als eigene Gruppe, „nach Geschmack"
+
+Das ist eine undokumentierte Schnittstelle, kein Versprechen. Fällt sie aus,
+importiert ChefMind die Vorschauseite und schreibt dazu, dass das Rezept deshalb
+unvollständig ist. Konfigurieren muss man nichts; die beiden
+`CHEFMIND_KPTNCOOK_*`-Variablen sind für den Fall, dass KptnCook den Schlüssel
+der App wechselt.
+
+Die Mengen der Schnittstelle gelten je einer Portion, die App zeigt zwei — ein
+Import speichert deshalb zwei Portionen als Basis und die verdoppelten Mengen.
+So steht im Rezept dasselbe wie in der App, und man kann es nachprüfen.
 
 Jeder Import landet als normales Rezept in der Datenbank und lässt sich sofort
 im Editor korrigieren. Unsichere Stellen werden als Hinweis ausgegeben statt

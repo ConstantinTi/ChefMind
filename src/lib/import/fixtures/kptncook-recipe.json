@@ -1,0 +1,1414 @@
+[
+ {
+  "_id": {
+   "$oid": "635a68635100007500061cd7"
+  },
+  "localizedTitle": {
+   "en": "Baked Salmon & Pasta Shells with Mustard-Dill Sauce",
+   "de": "Überbackene Muschelnudeln mit Lachs & Senf-Dill-Sauce",
+   "es": "Conchas de pasta rellenas de salmón con salsa de mostaza y eneldo",
+   "fr": "Saumon et conchiglioni au four, sauce moutarde et à l'aneth",
+   "pt": "Macarrão conchiglioni com salmão e molho de mostarda e endro ao forno"
+  },
+  "rtype": "Fish",
+  "authorComment": {
+   "en": "This is dill-icious!",
+   "de": "Dieses Rezept lachst jeden an!",
+   "es": "No te quiebres la cabeza pensando en qué cenar",
+   "fr": "Ramène l'aneth, Annette !",
+   "pt": "Do forno para sua mesa!"
+  },
+  "uid": "6c8c648e",
+  "country": "de/at/ch",
+  "preparationTime": 25,
+  "cookingTime": 10,
+  "recipeNutrition": {
+   "calories": 900,
+   "protein": 40,
+   "fat": 41,
+   "carbohydrate": 85
+  },
+  "activeTags": [
+   "main_ingredient_pasta",
+   "main_ingredient_fish",
+   "main_dish",
+   "dinner_lunch",
+   "comfort_foot",
+   "diet_pescetarian",
+   "baked",
+   "main_ingredient_grains",
+   "diet_high_protein"
+  ],
+  "steps": [
+   {
+    "title": {
+     "en": "All set?",
+     "de": "Alles parat?",
+     "es": "¿Todo listo?",
+     "fr": "Vous avez tout ?",
+     "pt": "Tudo pronto?"
+    },
+    "ingredients": [],
+    "image": {
+     "name": "REZ_3062_01.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c51d",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Defrost salmon and pat dry.",
+     "de": "Lachsfilets bei Bedarf auftauen.",
+     "es": "Descongelar el salmón y secar con palmaditas.",
+     "fr": "Décongeler le saumon et le sécher en tapotant avec du papier absorbant.",
+     "pt": "Descongelar salmão e secar."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 100.0,
+        "measure": "g"
+       },
+       "en": {
+        "quantity": 3.6,
+        "measure": "oz"
+       }
+      },
+      "ingredientId": "6246d5504f0000e201dbdca8",
+      "title": {
+       "en": "salmon fillet, frozen",
+       "de": "Lachsfilet, tiefgefroren",
+       "es": "filete de salmón, congelado",
+       "fr": "filet de saumon, surgelé",
+       "pt": "filé de salmão, congelado"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_18.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/635a6d265100003600061cf6"
+    }
+   },
+   {
+    "title": {
+     "en": "Cook pasta according to package instructions.",
+     "de": "Pasta nach Packungsanleitung zubereiten.",
+     "es": "Cocer la pasta según las instrucciones del paquete.",
+     "fr": "Faire cuire les pâtes selon les instructions de l'emballage.",
+     "pt": "Cozinhar macarrão de acordo as instruções da embalagem."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 80.0,
+        "measure": "g"
+       },
+       "en": {
+        "quantity": 2.8,
+        "measure": "oz"
+       }
+      },
+      "ingredientId": "5fd7735d400000350039a58b",
+      "title": {
+       "en": "pasta shell, large",
+       "de": "Muschelnudel, groß",
+       "es": "pasta tipo concha, grande",
+       "fr": "conchiglioni",
+       "pt": "macarrão conchiglioni"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_03.jpeg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c51e",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Meanwhile, heat some olive oil in a pan and fry salmon filet on both sides for 2-3 min. on medium heat.",
+     "de": "Währenddessen etwas Olivenöl in einer Pfanne erhitzen und Lachsfilet von beiden Seiten bei mittlerer Hitze ca. 2-3 min. braten. Mit Salz und Pfeffer würzen und zur Seite stellen.",
+     "es": "Mientras tanto, calentar un poco de aceite de oliva en una sartén y freír el filete de salmón por ambos lados a 2-3 min. fuego medio.",
+     "fr": "Pendant ce temps, chauffer de l'huile d'olive dans une poêle et faire revenir le filet de saumon des deux côtés pendant 2-3 min. à feu moyen.",
+     "pt": "Enquanto isso, aquecer um pouco de azeite de oliva em uma frigideira e fritar filé de salmão nos dois lados por 2-3 min. em fogo médio."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 0.5,
+        "measure": "EL"
+       },
+       "en": {
+        "quantity": 0.5,
+        "measure": "tbsp"
+       }
+      },
+      "ingredientId": "52bc0dfc91217aec00a8ad3f",
+      "title": {
+       "en": "olive oil",
+       "de": "Olivenöl",
+       "es": "aceite de oliva",
+       "fr": "huile d'olive",
+       "pt": "azeite de oliva"
+      }
+     },
+     {
+      "unit": null,
+      "ingredientId": "553652364900001b1550a3ea",
+      "title": {
+       "en": "salt",
+       "de": "Salz",
+       "es": "sal",
+       "fr": "sel",
+       "pt": "sal"
+      }
+     },
+     {
+      "unit": null,
+      "ingredientId": "55365112490000f41450a3e6",
+      "title": {
+       "en": "pepper",
+       "de": "Pfeffer",
+       "es": "pimienta",
+       "fr": "poivre",
+       "pt": "pimenta"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_04.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c51f",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Meanwhile, peel and finely dice onion.",
+     "de": "Währenddessen Zwiebel schälen, halbieren und fein würfeln.",
+     "es": "Mientras tanto, pelar la cebolla y picar en cubos pequeños.",
+     "fr": "Pendant ce temps, éplucher l'oignon et le couper en petits dés.",
+     "pt": "Enquanto isso, descascar cebola e cortar em cubos pequenos."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 1.0
+       },
+       "en": {
+        "quantity": 1.0
+       }
+      },
+      "ingredientId": "52bd676800025d5c01901402",
+      "title": {
+       "en": "yellow onion",
+       "de": "Speisezwiebel",
+       "es": "cebolla amarilla",
+       "fr": "oignon jaune",
+       "pt": "cebola amarela"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_18.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/635a6dbb4d00007700773fed"
+    }
+   },
+   {
+    "title": {
+     "en": "Peel and grate garlic.",
+     "de": "Knoblauch schälen und reiben.",
+     "es": "Pelar el ajo y rallarlo.",
+     "fr": "Éplucher et râper l'ail.",
+     "pt": "Descascar o alho e ralar."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 0.5,
+        "measure": "Zehe(n)"
+       },
+       "en": {
+        "quantity": 0.5,
+        "measure": "clove(s)"
+       }
+      },
+      "ingredientId": "52bc2ee391217a2a03a8ada6",
+      "title": {
+       "en": "garlic",
+       "de": "Knoblauch",
+       "es": "ajo",
+       "fr": "ail",
+       "pt": "alho"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_18.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/60be43d5420000571f2f704b"
+    }
+   },
+   {
+    "title": {
+     "en": "Heat remaining oil in the same pan. Fry garlic and onions for 2 min. Season with salt and pepper.",
+     "de": "Restliches Öl in der gleichen Pfanne erhitzen. Zwiebeln und Knoblauch darin 2 min. braten. Mit Salz und Pfeffer würzen.",
+     "es": "Calentar el aceite restante en la misma sartén. Freír el ajo y la cebolla durante 2 min. Sazonar con sal y pimienta.",
+     "fr": "Chauffer le reste d'huile dans la même poêle. Faire frire l'ail et les oignons pendant 2 min. Assaisonner avec du sel et du poivre.",
+     "pt": "Aquecer o restante do azeite de oliva na mesma frigideira. Fritar alho e cebola por 2 min. Temperar com sal e pimenta."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 0.5,
+        "measure": "EL"
+       },
+       "en": {
+        "quantity": 0.5,
+        "measure": "tbsp"
+       }
+      },
+      "ingredientId": "52bc0dfc91217aec00a8ad3f",
+      "title": {
+       "en": "olive oil",
+       "de": "Olivenöl",
+       "es": "aceite de oliva",
+       "fr": "huile d'olive",
+       "pt": "azeite de oliva"
+      }
+     },
+     {
+      "unit": null,
+      "ingredientId": "553652364900001b1550a3ea",
+      "title": {
+       "en": "salt",
+       "de": "Salz",
+       "es": "sal",
+       "fr": "sel",
+       "pt": "sal"
+      }
+     },
+     {
+      "unit": null,
+      "ingredientId": "55365112490000f41450a3e6",
+      "title": {
+       "en": "pepper",
+       "de": "Pfeffer",
+       "es": "pimienta",
+       "fr": "poivre",
+       "pt": "pimenta"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_07.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c520",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Preheat oven to 400°F (conventional, recommended).",
+     "de": "Backofen auf 200 °C (Ober- und Unterhitze, empfohlen) vorheizen.",
+     "es": "Precalentar el horno a 400°F (convencional, recomendado).",
+     "fr": "Préchauffer le four à 400°F (four traditionnel, recommandé).",
+     "pt": "Preaquecer o forno a 400°F (modo convencional, recomendado)."
+    },
+    "image": {
+     "name": "REZ_3062_18.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/617a6f683e0000b801833231"
+    }
+   },
+   {
+    "title": {
+     "en": "Meanwhile, thoroughly wash lemon with hot water and zest.",
+     "de": "Zitrone gründlich mit heißem Wasser waschen und Schale abreiben.",
+     "es": "Mientras tanto, lavar bien el limón con agua caliente y rallarlo.",
+     "fr": "Pendant ce temps, laver soigneusement le citron à l'eau chaude et en prélever le zeste.",
+     "pt": "Enquanto isso, lavar bem o limão com água quente e depois raspar a casca."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 0.5
+       },
+       "en": {
+        "quantity": 0.5
+       }
+      },
+      "ingredientId": "52bc2ffb91217a7503a8adb8",
+      "title": {
+       "en": "lemon",
+       "de": "Zitrone",
+       "es": "limón",
+       "fr": "citron",
+       "pt": "limão-siciliano"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_18.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/635a6e524b00003700a117ce"
+    }
+   },
+   {
+    "title": {
+     "en": "Wash dill, shake dry, and chop finely.",
+     "de": "Dill waschen, trocken schütteln und fein hacken.",
+     "es": "Lavar el eneldo, sacudirlo para secarlo y picarlo finamente.",
+     "fr": "Laver l'aneth, le secouer pour le sécher et le hacher finement.",
+     "pt": "Lavar endro, sacudir para secar e cortar em pedaços pequenos."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 5.0,
+        "measure": "g"
+       },
+       "en": {
+        "quantity": 0.5,
+        "measure": "cup(s)"
+       }
+      },
+      "ingredientId": "52bc2e3591217a0203a8ad9c",
+      "title": {
+       "en": "dill, fresh ",
+       "de": "Dill, frisch",
+       "es": "eneldo, fresco",
+       "fr": "aneth, frais",
+       "pt": "endro, fresco"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_18.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/619e0c38420000f7025a9318"
+    }
+   },
+   {
+    "title": {
+     "en": "Shred the salmon filet with 2 forks.",
+     "de": "Lachsfilet mit zwei Gabeln zerpflücken.",
+     "es": "Desmenuzar el filete de salmón con 2 tenedores.",
+     "fr": "Effilocher le filet de saumon avec 2 fourchettes.",
+     "pt": "Desfiar filé de salmão com dois garfos."
+    },
+    "image": {
+     "name": "REZ_3062_11.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c521",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Grate Parmesan.",
+     "de": "Parmesan reiben.",
+     "es": "Rallar el queso parmesano.",
+     "fr": "Râper le parmesan.",
+     "pt": "Ralar queijo parmesão."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 5.0,
+        "measure": "g"
+       },
+       "en": {
+        "quantity": 0.2,
+        "measure": "oz"
+       }
+      },
+      "ingredientId": "52bc312c91217a9a03a8adbe",
+      "title": {
+       "en": "Parmesan",
+       "de": "Parmesan",
+       "es": "queso parmesano",
+       "fr": "parmesan",
+       "pt": "queijo parmesão"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_18.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/607710626900008e00e79100"
+    }
+   },
+   {
+    "title": {
+     "en": "Mix cream with mustard dill sauce.",
+     "de": "Schlagsahne mit Senf-Dill-Sauce verrühren.",
+     "es": "Mezclar la crema con la salsa de mostaza y eneldo.",
+     "fr": "Mélanger la crème avec la sauce moutarde à l'aneth.",
+     "pt": "Misturar creme com molho de mostarda e endro."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 40.0,
+        "measure": "g"
+       },
+       "en": {
+        "quantity": 0.16,
+        "measure": "cup(s)"
+       }
+      },
+      "ingredientId": "52bc319291217abe03a8adc6",
+      "title": {
+       "en": "heavy whipping cream",
+       "de": "Schlagsahne",
+       "es": "crema para batir espesa",
+       "fr": "crème fouettée épaisse",
+       "pt": "creme de leite fresco"
+      }
+     },
+     {
+      "unit": {
+       "de": {
+        "quantity": 40.0,
+        "measure": "g"
+       },
+       "en": {
+        "quantity": 0.16,
+        "measure": "cup(s)"
+       }
+      },
+      "ingredientId": "6358f71f4d00002106bdaac9",
+      "title": {
+       "en": "mustard dill sauce",
+       "de": "Senf-Dill-Sauce",
+       "es": "salsa de mostaza y eneldo",
+       "fr": "sauce moutarde à l'aneth",
+       "pt": "molho de mostarda e endro"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_13.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c522",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "In a casserole dish, mix peas, lemon zest, onion mixture, and dill with the creamy mustard sauce.",
+     "de": "In einer Auflaufform Erbsen, Zitronenabrieb, Zwiebelmischung und Dill mit Senf-Sahne-Sauce mischen.",
+     "es": "En un refractario, mezclar los chícharos, la ralladura de limón, la mezcla de cebolla y el eneldo con la salsa de mostaza cremosa.",
+     "fr": "Dans une casserole, mélanger les petits pois, le zeste de citron, le mélange d'oignons et l'aneth avec la sauce crémeuse à la moutarde.",
+     "pt": "Em uma assadeira, misturar ervilhas, raspas de casca de limão, mistura de cebola e endro com molho cremoso de mostarda."
+    },
+    "ingredients": [
+     {
+      "unit": {
+       "de": {
+        "quantity": 40.0,
+        "measure": "g"
+       },
+       "en": {
+        "quantity": 0.25,
+        "measure": "cup(s)"
+       }
+      },
+      "ingredientId": "623dd19f5500006603a9cf61",
+      "title": {
+       "en": "green peas, frozen",
+       "de": "Erbse, tiefgefroren",
+       "es": "chícharo, congelado",
+       "fr": "petit pois, surgelé",
+       "pt": "ervilha, congelada"
+      }
+     }
+    ],
+    "image": {
+     "name": "REZ_3062_14.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c523",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Then add pasta shells, and pour a little sauce into each.",
+     "de": "Muschelnudeln hinzugeben und dabei jeweils etwas Sauce in die Muschelnudeln füllen.",
+     "es": "A continuación, añadir las conchas de pasta y verter un poco de salsa en cada una.",
+     "fr": "Ajouter ensuite les conchiglioni, et verser un peu de sauce dans chacune d'elles.",
+     "pt": "Em seguida, adicionar macarrão conchiglioni e despejar um pouco de molho dentro de cada concha."
+    },
+    "ingredients": [],
+    "image": {
+     "name": "REZ_3062_15.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c524",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Distribute salmon pieces on top of the pasta shells and sprinkle with Parmesan. Bake in the oven for approx. 10-12 min.",
+     "de": "Lachsstücke auf die Muschelnudeln verteilen und mit Parmesan bestreuen. Ca. 10-12 min. im Ofen überbacken.",
+     "es": "Distribuir los trozos de salmón sobre las conchas de pasta y espolvorear con queso parmesano. Hornear durante aprox 10-12 min.",
+     "fr": "Répartir les morceaux de saumon sur les conchiglioni et saupoudrer de parmesan. Cuire au four pendant environ 10-12 min.",
+     "pt": "Distribuir pedaços de salmão por cima das conchas e polvilhar com queijo parmesão. Assar no forno por cerca de 10-12 min."
+    },
+    "ingredients": [],
+    "image": {
+     "name": "REZ_3062_16.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/63653b8d4b00007500b0c525",
+     "type": "step"
+    }
+   },
+   {
+    "title": {
+     "en": "Serve salmon & pasta shells with fresh herbs as desired, and enjoy.",
+     "de": "Nudel-Lachs-Auflauf nach Belieben mit mehr Kräutern servieren und genießen.",
+     "es": "Servir el salmón y las conchas de pasta con hierbas frescas al gusto. Provecho.",
+     "fr": "Servir le saumon et les conchiglioni avec des herbes fraîches au choix. Bon appétit !",
+     "pt": "Servir macarrão conchiglioni com salmão com ervas frescas, se desejar, e desfrutar."
+    },
+    "image": {
+     "name": "REZ_3062_17.jpg",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/6369362c4c00006f00a1e077",
+     "type": "step"
+    }
+   }
+  ],
+  "authors": [
+   {
+    "_id": {
+     "$oid": "63280ff15400005f05b6686a"
+    },
+    "name": "KOCH'S",
+    "link": "https://www.kochs-meerrettich.de/",
+    "title": "www.kochs-meerrettich.de",
+    "sponsor": "yes",
+    "authorImage": {
+     "name": "Author_Kochs.png",
+     "url": "https://d2am1qai33sroc.cloudfront.net/image/632810594f00001d05a179d2"
+    },
+    "creationDate": {
+     "$date": 1663569905075
+    },
+    "updateDate": {
+     "$date": 1664978187546
+    }
+   }
+  ],
+  "ingredients": [
+   {
+    "quantity": 40.0,
+    "measure": "g",
+    "quantityUS": 0.25,
+    "measureUS": "cup(s)",
+    "quantityUSProd": 1.4,
+    "measureUSProd": "oz",
+    "ingredient": {
+     "_id": {
+      "$oid": "623dd19f5500006603a9cf61"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "green peas, frozen",
+      "de": "Erbse, tiefgefroren",
+      "es": "chícharo, congelado",
+      "fr": "petit pois, surgelé",
+      "pt": "ervilha, congelada"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "green peas, frozen",
+       "de": "Erbse, tiefgefroren",
+       "es": "chícharo, congelado",
+       "fr": "petit pois, surgelé",
+       "pt": "ervilha, congelada"
+      },
+      "plural": {
+       "en": "green peas, frozen",
+       "de": "Erbsen, tiefgefroren",
+       "es": "chícharos, congelados",
+       "fr": "petits pois, surgelés",
+       "pt": "ervilhas, congeladas"
+      }
+     },
+     "uncountableTitle": {
+      "en": "green peas, frozen",
+      "de": "Erbsen, tiefgefroren",
+      "es": "chícharos, congelados",
+      "fr": "petits pois, surgelés",
+      "pt": "ervilhas, congeladas"
+     },
+     "category": "Frozen",
+     "key": "green_peas,frozenerbse,tiefgefrorengreen_peas,frozenerbsen,tiefgefroren",
+     "desc": "green_peas,frozenerbse,tiefgefrorengreen_peas,frozenerbsen,tiefgefroren",
+     "image": {
+      "name": "veg_peas_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/623dd1c1520000b706505ce8"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1648218527477
+     },
+     "updateDate": {
+      "$date": 1665387061241
+     }
+    }
+   },
+   {
+    "quantity": 0.5,
+    "quantityUS": 0.5,
+    "quantityUSProd": 0.5,
+    "ingredient": {
+     "_id": {
+      "$oid": "52bc2ffb91217a7503a8adb8"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "lemon",
+      "de": "Zitrone",
+      "es": "limón",
+      "fr": "citron",
+      "pt": "limão-siciliano"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "lemon",
+       "de": "Zitrone",
+       "es": "limón",
+       "fr": "citron",
+       "pt": "limão-siciliano"
+      },
+      "plural": {
+       "en": "lemons",
+       "de": "Zitronen",
+       "es": "limones",
+       "fr": "citrons",
+       "pt": "limões-sicilianos"
+      }
+     },
+     "uncountableTitle": {
+      "en": "lemons",
+      "de": "Zitrone",
+      "es": "limón",
+      "fr": "citrons",
+      "pt": "limão-siciliano"
+     },
+     "category": "FruitVegetables",
+     "key": "lemonzitronelemonszitronen",
+     "desc": "lemonzitronelemonszitronen",
+     "image": {
+      "name": "fruits_lemon_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bb758c1290000d1136fb208"
+     },
+     "isSponsored": false,
+     "note": {
+      "en": "If you want to use lemon zest in a recipe, we recommend using organic lemons.",
+      "de": "Wenn du Zitronenschale in einem Rezept nutzen möchtest, empfehlen wir Bio-Zitronen zu verwenden.",
+      "es": "Si deseas utilizar ralladura de limón en una receta, te recomendamos que utilices limón orgánico.",
+      "fr": "Si vous utilisez du zeste de citron dans une recette, nous vous recommandons de choisir des citrons bio.",
+      "pt": "Se você pretende usar a casca em uma receita, recomendamos optar por limões-sicilianos orgânicos."
+     },
+     "creationDate": {
+      "$date": 1388064763810
+     },
+     "updateDate": {
+      "$date": 1662461520785
+     }
+    }
+   },
+   {
+    "quantity": 5.0,
+    "measure": "g",
+    "quantityUS": 0.5,
+    "measureUS": "cup(s)",
+    "quantityUSProd": 0.2,
+    "measureUSProd": "oz",
+    "ingredient": {
+     "_id": {
+      "$oid": "52bc2e3591217a0203a8ad9c"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "dill, fresh ",
+      "de": "Dill, frisch",
+      "es": "eneldo, fresco",
+      "fr": "aneth, frais",
+      "pt": "endro, fresco"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "dill, fresh ",
+       "de": "Dill, frisch",
+       "es": "eneldo, fresco",
+       "fr": "aneth, frais",
+       "pt": "endro, fresco"
+      },
+      "plural": {
+       "en": "dill, fresh ",
+       "de": "Dill, frisch",
+       "es": "eneldo, fresco",
+       "fr": "aneth, frais",
+       "pt": "endro, fresco"
+      }
+     },
+     "uncountableTitle": {
+      "en": "dill, fresh ",
+      "de": "Dill, frisch",
+      "es": "eneldo, fresco",
+      "fr": "aneth, frais",
+      "pt": "endro, fresco"
+     },
+     "category": "FruitVegetables",
+     "key": "dill,freshdill,frischdill,freshdill,frisch",
+     "desc": "dill,freshdill,frischdill,freshdill,frisch",
+     "image": {
+      "name": "herbs_dill_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bb634c2280000f31bc51d71"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1388064309008
+     },
+     "updateDate": {
+      "$date": 1652996718774
+     }
+    }
+   },
+   {
+    "quantity": 1.0,
+    "measure": "EL",
+    "quantityUS": 1.0,
+    "measureUS": "tbsp",
+    "quantityUSProd": 1.0,
+    "measureUSProd": "tbsp",
+    "ingredient": {
+     "_id": {
+      "$oid": "52bc0dfc91217aec00a8ad3f"
+     },
+     "typ": "basic",
+     "localizedTitle": {
+      "en": "olive oil",
+      "de": "Olivenöl",
+      "es": "aceite de oliva",
+      "fr": "huile d'olive",
+      "pt": "azeite de oliva"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "olive oil",
+       "de": "Olivenöl",
+       "es": "aceite de oliva",
+       "fr": "huile d'olive",
+       "pt": "azeite de oliva"
+      },
+      "plural": {
+       "en": "olive oil",
+       "de": "Olivenöl",
+       "es": "aceite de oliva",
+       "fr": "huile d'olive",
+       "pt": "azeite de oliva"
+      }
+     },
+     "uncountableTitle": {
+      "en": "olive oil",
+      "de": "Olivenöl",
+      "es": "aceite de oliva",
+      "fr": "huile d'olive",
+      "pt": "azeite de oliva"
+     },
+     "category": "OilsVinegars",
+     "key": "olive_oilolivenölolive_oilolivenöl",
+     "desc": "olive_oilolivenölolive_oilolivenöl",
+     "image": {
+      "name": "oils_olive-oil_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bb763df2900008e166fb232"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1388056060934
+     },
+     "updateDate": {
+      "$date": 1666679648346
+     }
+    }
+   },
+   {
+    "ingredient": {
+     "_id": {
+      "$oid": "553652364900001b1550a3ea"
+     },
+     "typ": "basic",
+     "localizedTitle": {
+      "en": "salt",
+      "de": "Salz",
+      "es": "sal",
+      "fr": "sel",
+      "pt": "sal"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "salt",
+       "de": "Salz",
+       "es": "sal",
+       "fr": "sel",
+       "pt": "sal"
+      },
+      "plural": {
+       "en": "salt",
+       "de": "Salz",
+       "es": "sal",
+       "fr": "sel",
+       "pt": "sal"
+      }
+     },
+     "uncountableTitle": {
+      "en": "salt",
+      "de": "Salz",
+      "es": "sal",
+      "fr": "sel",
+      "pt": "sal"
+     },
+     "category": "SpicesSeasoning",
+     "key": "saltsalzsaltsalz",
+     "desc": "saltsalzsaltsalz",
+     "image": {
+      "name": "spices_salt_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bb7819a27000039048a8f79"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1429623350034
+     },
+     "updateDate": {
+      "$date": 1662982197382
+     }
+    }
+   },
+   {
+    "ingredient": {
+     "_id": {
+      "$oid": "55365112490000f41450a3e6"
+     },
+     "typ": "basic",
+     "localizedTitle": {
+      "en": "pepper",
+      "de": "Pfeffer",
+      "es": "pimienta",
+      "fr": "poivre",
+      "pt": "pimenta"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "pepper",
+       "de": "Pfeffer",
+       "es": "pimienta",
+       "fr": "poivre",
+       "pt": "pimenta"
+      },
+      "plural": {
+       "en": "pepper",
+       "de": "Pfeffer",
+       "es": "pimienta",
+       "fr": "poivre",
+       "pt": "pimenta"
+      }
+     },
+     "uncountableTitle": {
+      "en": "pepper",
+      "de": "Pfeffer",
+      "es": "pimienta",
+      "fr": "poivre",
+      "pt": "pimenta"
+     },
+     "category": "SpicesSeasoning",
+     "key": "pepperpfefferpepperpfeffer",
+     "desc": "pepperpfefferpepperpfeffer",
+     "image": {
+      "name": "spices_pepper_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bbb78e82800009a00888456"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1429623058725
+     },
+     "updateDate": {
+      "$date": 1662982247006
+     }
+    }
+   },
+   {
+    "quantity": 80.0,
+    "measure": "g",
+    "quantityUS": 2.8,
+    "measureUS": "oz",
+    "quantityUSProd": 2.8,
+    "measureUSProd": "oz",
+    "canBeRemoved": false,
+    "changeable": false,
+    "ingredient": {
+     "_id": {
+      "$oid": "5fd7735d400000350039a58b"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "pasta shell, large",
+      "de": "Muschelnudel, groß",
+      "es": "pasta tipo concha, grande",
+      "fr": "conchiglioni",
+      "pt": "macarrão conchiglioni"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "pasta shell, large",
+       "de": "Muschelnudel, groß",
+       "es": "pasta tipo concha, grande",
+       "fr": "conchiglioni",
+       "pt": "macarrão conchiglioni"
+      },
+      "plural": {
+       "en": "pasta shells, large",
+       "de": "Muschelnudeln, groß",
+       "es": "pastas tipo concha, grandes",
+       "fr": "conchiglioni",
+       "pt": "macarrão conchiglioni"
+      }
+     },
+     "uncountableTitle": {
+      "en": "pasta shells, large",
+      "de": "Muschelnudeln, groß",
+      "es": "pastas tipo concha, grandes",
+      "fr": "conchiglioni",
+      "pt": "macarrão conchiglioni"
+     },
+     "category": "Pasta",
+     "key": "pasta_shell,largemuschelnudel,großpasta_shells,largemuschelnudeln,groß",
+     "desc": "pasta_shell,largemuschelnudel,großpasta_shells,largemuschelnudeln,groß",
+     "image": {
+      "name": "pasta_shells_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5fd77570400000380039a595"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1607955293141
+     },
+     "updateDate": {
+      "$date": 1666776979510
+     }
+    }
+   },
+   {
+    "quantity": 100.0,
+    "measure": "g",
+    "quantityUS": 3.6,
+    "measureUS": "oz",
+    "quantityUSProd": 0.22,
+    "measureUSProd": "lb",
+    "canBeRemoved": false,
+    "changeable": false,
+    "ingredient": {
+     "_id": {
+      "$oid": "6246d5504f0000e201dbdca8"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "salmon fillet, frozen",
+      "de": "Lachsfilet, tiefgefroren",
+      "es": "filete de salmón, congelado",
+      "fr": "filet de saumon, surgelé",
+      "pt": "filé de salmão, congelado"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "salmon fillet, frozen",
+       "de": "Lachsfilet, tiefgefroren",
+       "es": "filete de salmón, congelado",
+       "fr": "filet de saumon, surgelé",
+       "pt": "filé de salmão, congelado"
+      },
+      "plural": {
+       "en": "salmon fillets, frozen",
+       "de": "Lachsfilets, tiefgefroren",
+       "es": "filetes de salmón, congelados",
+       "fr": "filets de saumon, surgelés",
+       "pt": "filés de salmão, congelados"
+      }
+     },
+     "uncountableTitle": {
+      "en": "salmon fillet, frozen",
+      "de": "Lachsfilet, tiefgefroren",
+      "es": "filete de salmón, congelado",
+      "fr": "filet de saumon, surgelé",
+      "pt": "filé de salmão, congelado"
+     },
+     "category": "FishSeafood",
+     "key": "salmon_fillet,frozenlachsfilet,tiefgefrorensalmon_fillets,frozenlachsfilets,tiefgefroren",
+     "desc": "salmon_fillet,frozenlachsfilet,tiefgefrorensalmon_fillets,frozenlachsfilets,tiefgefroren",
+     "image": {
+      "name": "fish_salmon-frozen_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/6246d7365000001c09f53617"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1648809296273
+     },
+     "updateDate": {
+      "$date": 1665658366108
+     }
+    }
+   },
+   {
+    "quantity": 40.0,
+    "measure": "g",
+    "quantityUS": 0.16,
+    "measureUS": "cup(s)",
+    "quantityUSProd": 1.4,
+    "measureUSProd": "oz",
+    "canBeRemoved": false,
+    "changeable": false,
+    "ingredient": {
+     "_id": {
+      "$oid": "52bc319291217abe03a8adc6"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "heavy whipping cream",
+      "de": "Schlagsahne",
+      "es": "crema para batir espesa",
+      "fr": "crème fouettée épaisse",
+      "pt": "creme de leite fresco"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "heavy whipping cream",
+       "de": "Schlagsahne",
+       "es": "crema para batir espesa",
+       "fr": "crème fouettée épaisse",
+       "pt": "creme de leite fresco"
+      },
+      "plural": {
+       "en": "heavy whipping cream",
+       "de": "Schlagsahne",
+       "es": "crema para batir espesa",
+       "fr": "crème fouettée épaisse",
+       "pt": "creme de leite fresco"
+      }
+     },
+     "uncountableTitle": {
+      "en": "heavy whipping cream",
+      "de": "Schlagsahne",
+      "es": "crema para batir espesa",
+      "fr": "crème fouettée épaisse",
+      "pt": "creme de leite fresco"
+     },
+     "category": "DairyEggs",
+     "key": "heavy_whipping_creamschlagsahneheavy_whipping_creamschlagsahne",
+     "desc": "heavy_whipping_creamschlagsahneheavy_whipping_creamschlagsahne",
+     "image": {
+      "name": "dairy_milk-whole_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bbb79c0280000f40088845a"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1388065170744
+     },
+     "updateDate": {
+      "$date": 1668420009524
+     }
+    }
+   },
+   {
+    "quantity": 0.5,
+    "measure": "Zehe(n)",
+    "quantityUS": 0.5,
+    "measureUS": "clove(s)",
+    "quantityUSProd": 0.00125,
+    "measureUSProd": "lb",
+    "canBeRemoved": false,
+    "changeable": false,
+    "ingredient": {
+     "_id": {
+      "$oid": "52bc2ee391217a2a03a8ada6"
+     },
+     "typ": "basic",
+     "localizedTitle": {
+      "en": "garlic",
+      "de": "Knoblauch",
+      "es": "ajo",
+      "fr": "ail",
+      "pt": "alho"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "garlic",
+       "de": "Knoblauch",
+       "es": "ajo",
+       "fr": "ail",
+       "pt": "alho"
+      },
+      "plural": {
+       "en": "garlic",
+       "de": "Knoblauch",
+       "es": "ajo",
+       "fr": "ail",
+       "pt": "alhos"
+      }
+     },
+     "uncountableTitle": {
+      "en": "garlic",
+      "de": "Knoblauch",
+      "es": "ajo",
+      "fr": "ail",
+      "pt": "alho"
+     },
+     "category": "FruitVegetables",
+     "key": "garlicknoblauchgarlicknoblauch",
+     "desc": "garlicknoblauchgarlicknoblauch",
+     "image": {
+      "name": "veg_garlic_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bb733e5290000c60d6fb1bb"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1388064483880
+     },
+     "updateDate": {
+      "$date": 1662982383870
+     }
+    }
+   },
+   {
+    "quantity": 40.0,
+    "measure": "g",
+    "quantityUS": 0.16,
+    "measureUS": "cup(s)",
+    "quantityUSProd": 1.4,
+    "measureUSProd": "oz",
+    "canBeRemoved": false,
+    "changeable": false,
+    "brandIngredientId": "6358f73d510000a006e77b39",
+    "ingredient": {
+     "_id": {
+      "$oid": "6358f71f4d00002106bdaac9"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "mustard dill sauce",
+      "de": "Senf-Dill-Sauce",
+      "es": "salsa de mostaza y eneldo",
+      "fr": "sauce moutarde à l'aneth",
+      "pt": "molho de mostarda e endro"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "mustard dill sauce",
+       "de": "Senf-Dill-Sauce",
+       "es": "salsa de mostaza y eneldo",
+       "fr": "sauce moutarde à l'aneth",
+       "pt": "molho de mostarda e endro"
+      },
+      "plural": {
+       "en": "mustard dill sauce",
+       "de": "Senf-Dill-Sauce",
+       "es": "salsa de mostaza y eneldo",
+       "fr": "sauce moutarde à l'aneth",
+       "pt": "molho de mostarda e endro"
+      }
+     },
+     "uncountableTitle": {
+      "en": "mustard dill sauce",
+      "de": "Senf-Dill-Sauce",
+      "es": "salsa de mostaza y eneldo",
+      "fr": "sauce moutarde à l'aneth",
+      "pt": "molho de mostarda e endro"
+     },
+     "category": "Condiments",
+     "key": "mustard_dill_saucesenf-dill-saucemustard_dill_saucesenf-dill-sauce",
+     "desc": "mustard_dill_saucesenf-dill-saucemustard_dill_saucesenf-dill-sauce",
+     "image": {
+      "name": "pantry_graved_lachs_sauce_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/635fd1d34300006f00d41793"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1666774815446
+     },
+     "updateDate": {
+      "$date": 1667815078017
+     }
+    }
+   },
+   {
+    "quantity": 1.0,
+    "quantityUS": 1.0,
+    "quantityUSProd": 1.0,
+    "canBeRemoved": false,
+    "changeable": false,
+    "ingredient": {
+     "_id": {
+      "$oid": "52bd676800025d5c01901402"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "yellow onion",
+      "de": "Speisezwiebel",
+      "es": "cebolla amarilla",
+      "fr": "oignon jaune",
+      "pt": "cebola amarela"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "yellow onion",
+       "de": "Speisezwiebel",
+       "es": "cebolla amarilla",
+       "fr": "oignon jaune",
+       "pt": "cebola amarela"
+      },
+      "plural": {
+       "en": "yellow onions",
+       "de": "Speisezwiebeln",
+       "es": "cebollas amarillas",
+       "fr": "oignons jaunes",
+       "pt": "cebolas amarelas"
+      }
+     },
+     "uncountableTitle": {
+      "en": "yellow onions",
+      "de": "Speisezwiebeln",
+      "es": "cebolla amarilla",
+      "fr": "oignon jaune",
+      "pt": "cebola amarela"
+     },
+     "category": "FruitVegetables",
+     "key": "yellow_onionspeisezwiebelyellow_onionsspeisezwiebeln",
+     "desc": "yellow_onionspeisezwiebelyellow_onionsspeisezwiebeln",
+     "image": {
+      "name": "veg_onion_white_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bb764b5290000ee166fb238"
+     },
+     "isSponsored": false,
+     "creationDate": {
+      "$date": 1388144488638
+     },
+     "updateDate": {
+      "$date": 1661265186353
+     }
+    }
+   },
+   {
+    "quantity": 5.0,
+    "measure": "g",
+    "quantityUS": 0.2,
+    "measureUS": "oz",
+    "quantityUSProd": 0.2,
+    "measureUSProd": "oz",
+    "canBeRemoved": false,
+    "changeable": false,
+    "ingredient": {
+     "_id": {
+      "$oid": "52bc312c91217a9a03a8adbe"
+     },
+     "typ": "regular",
+     "localizedTitle": {
+      "en": "Parmesan",
+      "de": "Parmesan",
+      "es": "queso parmesano",
+      "fr": "parmesan",
+      "pt": "queijo parmesão"
+     },
+     "numberTitle": {
+      "singular": {
+       "en": "Parmesan",
+       "de": "Parmesan",
+       "es": "queso parmesano",
+       "fr": "parmesan",
+       "pt": "queijo parmesão"
+      },
+      "plural": {
+       "en": "Parmesan",
+       "de": "Parmesan",
+       "es": "queso parmesano",
+       "fr": "parmesan",
+       "pt": "queijo parmesão"
+      }
+     },
+     "uncountableTitle": {
+      "en": "Parmesan",
+      "de": "Parmesan",
+      "es": "queso parmesano",
+      "fr": "parmesan",
+      "pt": "queijo parmesão"
+     },
+     "category": "DairyEggs",
+     "key": "parmesanparmesanparmesanparmesan",
+     "desc": "parmesanparmesanparmesanparmesan",
+     "image": {
+      "name": "dairy_cheese-parmesan_s.jpg",
+      "url": "https://d2am1qai33sroc.cloudfront.net/image/5bbb27ac280000161aa3e243"
+     },
+     "isSponsored": false,
+     "note": {
+      "en": "Cheese can contain animal rennet. Check the pack for ingredient information.",
+      "de": "Käse kann tierisches Lab enthalten. Willst du sicher gehen, beachte die Zutatenliste auf der Packung.",
+      "es": "El queso puede contener cuajo animal. Consulta el paquete para obtener información sobre los ingredientes.",
+      "fr": "Le fromage peut contenir de la présure animale. Vérifiez la composition sur l'emballage.",
+      "pt": "O queijo pode conter coalho de origem animal. Verifique a embalagem para obter informações sobre os ingredientes."
+     },
+     "creationDate": {
+      "$date": 1388065068736
+     },
+     "updateDate": {
+      "$date": 1663239877361
+     }
+    }
+   }
+  ],
+  "imageList": [
+   {
+    "name": "Kochs_Special.png",
+    "url": "https://d2am1qai33sroc.cloudfront.net/image/6368d6e84c00003700c64606",
+    "type": "special"
+   },
+   {
+    "name": "REZ_3062_Fav.jpg",
+    "url": "https://d2am1qai33sroc.cloudfront.net/image/636936644f000036005a5594",
+    "type": "favorite"
+   },
+   {
+    "name": "REZ_3062_18.jpg",
+    "url": "https://d2am1qai33sroc.cloudfront.net/image/636936644f000036005a5592",
+    "type": "blurred"
+   },
+   {
+    "name": "REZ_3062_Cover.jpg",
+    "url": "https://d2am1qai33sroc.cloudfront.net/image/636936644f000036005a5593",
+    "type": "cover"
+   }
+  ],
+  "trackingMode": "yes",
+  "feature": "none",
+  "special": "brands",
+  "specialText": {
+   "en": "Presented by",
+   "de": "Präsentiert von",
+   "es": "Presentado por",
+   "fr": "Présenté par",
+   "pt": "Apresentado por"
+  },
+  "sponsored": "KOCH'S",
+  "sponsoredColorCode": "light",
+  "publishDuration": {
+   "en": 7,
+   "de": 7
+  },
+  "favoriteCount": 22694,
+  "creationDate": {
+   "$date": 1666869347335
+  },
+  "updateDate": {
+   "$date": 1669821594726
+  }
+ }
+]

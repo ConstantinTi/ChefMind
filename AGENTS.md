@@ -168,6 +168,19 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   `src/lib/upload-limits.ts` und werden von `next.config.ts`, dem Action und dem
   Formular gelesen. Der Import läuft über `/api/import`, einen Route Handler —
   der kennt diese Grenze nicht, weshalb Fotos beim Import immer funktionierten.
+- **Die Mengen von KptnCook gelten je EINER Portion.** Die App und die
+  Vorschauseite zeigen dasselbe Rezept für zwei — die Seite zu `6c8c648e` listet
+  genau das Doppelte der API-Werte (40 g Erbsen werden 80 g, 100 g Lachs werden
+  200 g). `kptnCookToDraft()` multipliziert deshalb mit der Portionszahl und
+  speichert diese als Basis. Wer das „vereinfacht", halbiert jedes importierte
+  KptnCook-Rezept; die Zahlen in `kptncook.test.ts` stammen aus der Vorschauseite
+  und fangen es auf.
+- **Der KptnCook-Import ist eine private Schnittstelle, kein Vertrag.** Die
+  öffentliche Seite bricht nach dem dritten Schritt ab, weshalb es die
+  Schnittstelle überhaupt braucht. Fällt sie aus, wirft `fetchKptnCookRecipe()`
+  einen `KptnCookError`, und `importFromUrl()` fällt auf die Vorschauseite
+  zurück — mit einem Hinweis, dass das Rezept deshalb unvollständig ist. Diesen
+  Fallback nicht in ein 500 umbauen.
 - Der Kochmodus-Link muss die aktuell gewählte Portionszahl mitgeben. Er lebt
   deshalb im `ServingsScaler` und nicht im Seitenkopf.
 

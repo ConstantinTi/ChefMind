@@ -16,8 +16,12 @@ interface ImportResponse {
   error?: string;
 }
 
+/** Only for the hint below the field — the real detection lives in the
+ *  importer, which the MCP tool and curl reach without ever loading this. */
+const KPTNCOOK_LINK = /^https?:\/\/([a-z0-9-]+\.)*kptncook\.com\//i;
+
 const TABS: Array<{ id: Mode; label: string; hint: string }> = [
-  { id: 'url', label: 'Aus URL', hint: 'Liest die strukturierten Daten der Seite — exakt, kostenlos, ohne KI.' },
+  { id: 'url', label: 'Aus URL', hint: 'Liest die strukturierten Daten der Seite — exakt, kostenlos, ohne KI. KptnCook-Links werden vollständig über die App-Schnittstelle geholt.' },
   { id: 'recipe', label: 'Rezeptfoto', hint: 'Kochbuchseite, Rezeptkarte oder Handschrift abfotografieren.' },
   { id: 'dish', label: 'Foto vom Gericht', hint: 'Die KI erkennt das Gericht und schreibt ein plausibles Rezept dazu.' },
   { id: 'text', label: 'Text einfügen', hint: 'Kopierter Rezepttext aus einer Nachricht oder einem PDF.' },
@@ -29,6 +33,7 @@ export function ImportForm({ aiConfigured }: { aiConfigured: boolean }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ImportResponse | null>(null);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [url, setUrl] = useState('');
 
   const activeTab = TABS.find((t) => t.id === mode)!;
   const needsAi = mode !== 'url';
@@ -114,15 +119,27 @@ export function ImportForm({ aiConfigured }: { aiConfigured: boolean }) {
       <Card className="p-4">
         <form onSubmit={onSubmit} className="space-y-3">
           {mode === 'url' ? (
-            <input
-              name="url"
-              type="url"
-              required
-              placeholder="https://…"
-              aria-label="Adresse der Rezeptseite"
-              className={inputClass}
-              autoComplete="off"
-            />
+            <div className="space-y-2">
+              <input
+                name="url"
+                type="url"
+                required
+                placeholder="https://…"
+                aria-label="Adresse der Rezeptseite"
+                className={inputClass}
+                autoComplete="off"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
+              {/* Worth saying out loud: the share page itself stops after the
+                  third step, so without this route the import looks broken. */}
+              {KPTNCOOK_LINK.test(url) ? (
+                <p className="text-sm text-muted">
+                  KptnCook erkannt — das vollständige Rezept wird über die
+                  App-Schnittstelle geladen, samt aller Schritte und Bild.
+                </p>
+              ) : null}
+            </div>
           ) : null}
 
           {mode === 'recipe' || mode === 'dish' ? (

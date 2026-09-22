@@ -9,6 +9,10 @@ import { parseIngredientList } from '@/domain/units/parse';
 import type { CreateRecipeArgs } from '@/contracts/recipes';
 import { RecipeInputSchema } from '@/contracts/common';
 import { extractReadableText, extractRecipeFromHtml, JsonLdNotFoundError } from '@/lib/import/jsonld';
+import {
+  fetchKptnCookRecipe, isKptnCookUrl, kptnCookToDraft, KptnCookError, parseKptnCookId,
+  type KptnCookId,
+} from '@/lib/import/kptncook';
 import { aiRecipeToDraft } from '@/lib/ai/schemas';
 import { getAiProvider, type ImageInput } from '@/lib/ai/provider';
 import { prepareForVision, storePhoto, type StoredPhoto } from '@/lib/photos';
@@ -114,6 +118,100 @@ export async function markImportReviewed(recipeId: string) {
  * fallback for the minority of sites that publish no structured data.
  */
 export async function importFromUrl(
+  args: { url: string; save?: boolean },
+): Promise<ImportResult> {
+  // KptnCook first, because for a KptnCook link every other path is strictly
+  // worse: the share page is a teaser that stops after the third step, so both
+  // JSON-LD and the model would produce a recipe you cannot cook from.
+  if (isKptnCookUrl(args.url)) {
+    const id = parseKptnCookId(args.url);
+    if (id) {
+      try {
+        return await importFromKptnCook(id, args.save ?? false);
+      } catch (error) {
+        if (!(error instanceof KptnCookError)) throw error;
+        // The private API is undocumented and may close without notice. Falling
+        // back still gets the ingredients and the first three steps, which is
+        // far better than refusing the import — but say why it is incomplete.
+        return withExtraWarning(
+          await importFromWebPage(args),
+          `Die KptnCook-Schnittstelle antwortete nicht (${error.message}) — importiert `
+          + 'wurde daher nur die öffentliche Vorschauseite, die nach dem dritten '
+          + 'Schritt abbricht.',
+        );
+      }
+    }
+  }
+  return importFromWebPage(args);
+}
+
+/** Appends a warning to a finished import, on the recipe as well as in the
+ *  response — the banner is driven by what was stored, not by what we return. */
+async function withExtraWarning(result: ImportResult, warning: string): Promise<ImportResult> {
+  const warnings = [warning, ...result.warnings];
+  if (result.recipe) {
+    await db.update(recipes).set({ importWarnings: warnings }).where(eq(recipes.id, result.recipe.id));
+  }
+  return { ...result, warnings };
+}
+
+/**
+ * Fetches a recipe in full through KptnCook's own mobile API.
+ *
+ * Unlike every other URL import this one is a parser, not a guess: the amounts,
+ * the steps, the per-step ingredient links and the nutrition all come straight
+ * from the app's data, so the confidence is the highest in the app and no model
+ * is involved at all.
+ */
+async function importFromKptnCook(
+  id: KptnCookId, save: boolean,
+): Promise<ImportResult> {
+  const { draft: parsed, imageUrl, warnings } = kptnCookToDraft(await fetchKptnCookRecipe(id));
+  const draft = draftToRecipeInput(parsed);
+
+  const recipe = await maybeSave(draft, save, { method: 'parser', confidence: 0.98, warnings });
+
+  const photoWarnings = recipe && imageUrl ? await attachRemotePhoto(recipe.id, imageUrl) : [];
+  const allWarnings = [...warnings, ...photoWarnings];
+  if (recipe && photoWarnings.length) {
+    await db.update(recipes).set({ importWarnings: allWarnings }).where(eq(recipes.id, recipe.id));
+  }
+
+  return { draft, recipe, method: 'parser', confidence: 0.98, warnings: allWarnings };
+}
+
+/**
+ * Downloads the source's own photo and hangs it on the recipe.
+ *
+ * Never fatal, for the same reason the photo import's storage step is not: by
+ * the time this runs the recipe is saved, and a picture that will not download
+ * is worth a line of text, not a failed import.
+ */
+async function attachRemotePhoto(recipeId: string, url: string): Promise<string[]> {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const stored = await storePhoto(Buffer.from(await response.arrayBuffer()));
+    const [inserted] = await db.insert(photos).values({
+      recipeId,
+      storageKey: stored.storageKey,
+      thumbKey: stored.thumbKey,
+      width: stored.width,
+      height: stored.height,
+      sortOrder: 0,
+    }).returning({ id: photos.id });
+    if (inserted) {
+      await db.update(recipes).set({ heroPhotoId: inserted.id }).where(eq(recipes.id, recipeId));
+    }
+    return [];
+  } catch (error) {
+    const why = error instanceof Error ? error.message : 'unbekannter Fehler';
+    return [`Das Bild der Quelle konnte nicht übernommen werden: ${why}`];
+  }
+}
+
+/** The ordinary web import: structured data first, the model as a fallback. */
+async function importFromWebPage(
   args: { url: string; save?: boolean },
 ): Promise<ImportResult> {
   const response = await fetch(args.url, {
