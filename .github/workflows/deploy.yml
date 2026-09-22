@@ -46,6 +46,26 @@ jobs:
             fehler=1
           fi
 
+          # Der Build ist der speicherhungrigste Schritt auf diesem Rechner:
+          # Turbopack kompiliert alles in einem Prozess und braucht dafür rund
+          # 1,6 GB. Reicht das nicht, killt der Kernel npm mitten im Build, und
+          # sichtbar ist davon nur "exit code: 137" — kein Wort über Speicher.
+          # Deshalb stehen die Zahlen hier, bevor gebaut wird.
+          if command -v free >/dev/null 2>&1; then
+            echo "Speicher (MB):"
+            free -m
+            verfuegbar=$(free -m | awk '/^Mem:/ {print $7}')
+            swap=$(free -m | awk '/^Swap:/ {print $2}')
+            echo "Verfügbar: ${verfuegbar} MB + ${swap} MB Swap, CPUs: $(nproc)"
+            if [ "$((verfuegbar + swap))" -lt 2048 ]; then
+              echo "WARNUNG: unter 2 GB nutzbar. Der Build braucht ~1,6 GB —"
+              echo "  bricht er mit 'Killed' / exit code 137 ab, war es der"
+              echo "  OOM-Killer, kein Fehler im Code. Abhilfe: Swap einrichten,"
+              echo "  die laufenden Container vorher stoppen, oder das Image"
+              echo "  woanders bauen und hierher pushen."
+            fi
+          fi
+
           exit $fehler
 
       # actions/checkout führt `git clean -ffdx` aus. Das -x entfernt auch

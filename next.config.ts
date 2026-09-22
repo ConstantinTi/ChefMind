@@ -14,7 +14,16 @@ const nextConfig: NextConfig = {
   // optimizer would only add weight to the runtime.
   images: { unoptimized: true },
 
+  // Keine Source Maps. Das ist kein Geschmack, sondern der Grund, warum der
+  // Deploy überhaupt durchläuft: ihre Erzeugung kostete 300 MB Spitzenspeicher
+  // (1,92 → 1,62 GB) und 47 MB im Image. Der Build-Rechner hat davon nicht
+  // genug — er hat npm mitten im Build erschlagen, sichtbar nur als
+  // "exit code: 137". Wer sie wieder anschaltet, bekommt das zurück.
+  // Der Preis sind unleserlichere Stacktraces in Produktion.
+  productionBrowserSourceMaps: false,
+
   experimental: {
+    serverSourceMaps: false,
     serverActions: {
       // Fotos werden über einen Server Action hochgeladen, und der Body ist
       // ohne diese Zeile auf 1 MB begrenzt — weniger als ein Handyfoto. Jedes

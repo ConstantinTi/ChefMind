@@ -181,6 +181,16 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   einen `KptnCookError`, und `importFromUrl()` fällt auf die Vorschauseite
   zurück — mit einem Hinweis, dass das Rezept deshalb unvollständig ist. Diesen
   Fallback nicht in ein 500 umbauen.
+- **Source Maps bleiben aus, sonst stirbt der Deploy am Speicher.** Der
+  Build-Rechner ist knapp: `next build` braucht ohne sie ~1,62 GB, mit ihnen
+  ~1,92 GB — und darüber erschlägt der OOM-Killer npm mitten im Lauf. Im Log
+  steht dann nur „Killed" und `exit code: 137`, direkt nach „Running
+  TypeScript", was aussieht wie ein Typfehler und keiner ist. Der Typecheck
+  selbst kostet nur ~80 MB und bleibt deshalb drin; das Geld liegt in den
+  Source Maps (`productionBrowserSourceMaps` und `experimental.serverSourceMaps`
+  in `next.config.ts`). Die Voraussetzungsprüfung im Deploy-Workflow schreibt
+  die Speicherzahlen vor dem Build ins Log, damit der nächste 137er sich selbst
+  erklärt.
 - Der Kochmodus-Link muss die aktuell gewählte Portionszahl mitgeben. Er lebt
   deshalb im `ServingsScaler` und nicht im Seitenkopf.
 
