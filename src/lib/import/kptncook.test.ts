@@ -6,17 +6,23 @@ import { RecipeInputSchema } from '@/contracts/common';
 import fixture from './fixtures/kptncook-recipe.json';
 
 /**
- * The fixture is a real, recorded `/recipes/search` response for
- * "Überbackene Muschelnudeln mit Lachs & Senf-Dill-Sauce" (uid 6c8c648e), taken
- * from the test fixtures of https://github.com/ephes/kptncook (MIT) with the
- * retailer and product price lists stripped out.
+ * The fixture is a live `/recipes/search?lang=de` response for "Überbackene
+ * Muschelnudeln mit Lachs & Senf-Dill-Sauce" (uid 6c8c648e), recorded from the
+ * real endpoint with the retailer and product price lists stripped out.
  *
- * The expected amounts below are not guesses: they are what the public share
- * page for that same uid prints ("80 g Erbsen, tiefgefroren", "200 g
- * Lachsfilets, tiefgefroren", "1 Zehe(n) Knoblauch"). That comparison is what
- * established that the API stores amounts per SINGLE portion while the app
- * presents the recipe for two — so if anyone ever "simplifies" the doubling
- * away, these numbers catch it.
+ * It replaced a 2022-era capture, and that swap is the point. With `lang=de`
+ * the API localizes server-side and sends plain German strings; the old capture
+ * sent maps of language codes under `localizedTitle`. Testing against the old
+ * shape hid a mapper that read only the maps, so against the real endpoint every
+ * imported recipe came out titled "KptnCook-Rezept". A fixture that no longer
+ * matches the server tests nothing.
+ *
+ * The expected amounts are not guesses either: they are what the public share
+ * page for that uid prints ("80 g Erbsen, tiefgefroren", "200 g Lachsfilets,
+ * tiefgefroren", "1 Zehe(n) Knoblauch"). That comparison is what established
+ * that the API stores amounts per SINGLE portion while the app presents the
+ * recipe for two — so if anyone ever "simplifies" the doubling away, these
+ * numbers catch it.
  */
 
 const [raw] = fixture as RawKptnCookRecipe[];
@@ -151,7 +157,9 @@ describe('kptnCookToDraft', () => {
   });
 
   it('keeps nutrition per portion and tags the recipe as imported', () => {
-    expect(draft.nutrition).toEqual({ kcal: 900, protein: 40, carbs: 85, fat: 41, fiber: null });
+    expect(draft.nutrition).toEqual({
+      kcal: 930, protein: 37, carbs: 81, fat: 47, fiber: 7.721,
+    });
     expect(draft.tags).toContain('KptnCook');
     expect(draft.tags).toContain('pescetarisch');
     // main_ingredient_* is editorial noise and must not reach the recipe card.
@@ -188,5 +196,89 @@ describe('the draft through the shared contract', () => {
     expect(parsed.steps[0]?.ingredientIndices).toEqual([draft.steps[0]?.ingredientIndices?.[0]]);
     expect(parsed.steps.filter((s) => s.ingredientIndices?.length).length).toBeGreaterThan(5);
     expect(parsed.steps.find((s) => s.temperatureC != null)?.temperatureC).toBe(200);
+  });
+});
+
+describe('the three shapes a translatable field arrives in', () => {
+  // One recipe mixes these, and reading only the localized-map form is what
+  // made every real import come out called "KptnCook-Rezept".
+  it('reads a flat German string, which is what lang=de returns today', () => {
+    const { draft } = kptnCookToDraft({
+      title: 'Linsensuppe',
+      authorComment: 'Wärmt.',
+      ingredients: [{
+        quantity: 100,
+        measure: 'g',
+        ingredient: { typ: 'regular', title: 'Rote Linse', numberTitle: { plural: 'Rote Linsen' } },
+      }],
+      steps: [{ title: 'Linsen waschen.' }],
+    });
+    expect(draft.title).toBe('Linsensuppe');
+    expect(draft.description).toBe('Wärmt.');
+    expect(draft.ingredients[0]?.name).toBe('Rote Linsen');
+    expect(draft.steps[0]?.text).toBe('Linsen waschen.');
+  });
+
+  it('still reads the older map of language codes', () => {
+    const { draft } = kptnCookToDraft({
+      localizedTitle: { en: 'Lentil soup', de: 'Linsensuppe' },
+      ingredients: [{
+        quantity: 100,
+        measure: 'g',
+        ingredient: {
+          typ: 'regular',
+          numberTitle: { plural: { en: 'red lentils', de: 'Rote Linsen' } },
+        },
+      }],
+      steps: [{ title: { de: 'Linsen waschen.' } }],
+    });
+    expect(draft.title).toBe('Linsensuppe');
+    expect(draft.ingredients[0]?.name).toBe('Rote Linsen');
+    expect(draft.steps[0]?.text).toBe('Linsen waschen.');
+  });
+
+  it('falls back to the uncountable form when there is no singular or plural', () => {
+    const { draft } = kptnCookToDraft({
+      title: 'Test',
+      ingredients: [{
+        ingredient: { typ: 'basic', numberTitle: { uncountable: 'Pfeffer' } },
+      }],
+      steps: [{ title: 'Würzen.' }],
+    });
+    expect(draft.ingredients[0]?.name).toBe('Pfeffer');
+  });
+});
+
+describe('oven settings written the way the steps actually write them', () => {
+  it.each([
+    ['Backofen auf 200 °C (Ober- und Unterhitze, empfohlen) vorheizen.', 200, 'ober_unterhitze'],
+    ['Ofen auf 180 °C Ober-/Unterhitze stellen.', 180, 'ober_unterhitze'],
+    ['Bei 160 °C Umluft backen.', 160, 'umluft'],
+  ])('reads %s', (text, celsius, mode) => {
+    const { draft } = kptnCookToDraft({ title: 'T', steps: [{ title: text }], ingredients: [] });
+    expect(draft.steps[0]?.temperatureC).toBe(celsius);
+    expect(draft.steps[0]?.temperatureMode).toBe(mode);
+  });
+
+  it('reads the narrow no-break space the API puts before °C', () => {
+    // The live response uses U+202F there, not a normal space.
+    const { draft } = kptnCookToDraft({
+      title: 'T', ingredients: [], steps: [{ title: 'Backofen auf 200 °C vorheizen.' }],
+    });
+    expect(draft.steps[0]?.temperatureC).toBe(200);
+  });
+});
+
+describe('a step that offers both oven settings at once', () => {
+  it('pairs the temperature with its own bracket, not the last mode in the line', () => {
+    // Verbatim from the frittata. Scanning the whole sentence gave 180 °C on
+    // fan, which is the one combination the step does not describe.
+    const { draft } = kptnCookToDraft({
+      title: 'T',
+      ingredients: [],
+      steps: [{ title: 'Backofen auf 180 °C (Ober- und Unterhitze, empfohlen) oder 160 °C (Umluft) vorheizen.' }],
+    });
+    expect(draft.steps[0]?.temperatureC).toBe(180);
+    expect(draft.steps[0]?.temperatureMode).toBe('ober_unterhitze');
   });
 });

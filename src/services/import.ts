@@ -135,9 +135,8 @@ export async function importFromUrl(
         // far better than refusing the import — but say why it is incomplete.
         return withExtraWarning(
           await importFromWebPage(args),
-          `Die KptnCook-Schnittstelle antwortete nicht (${error.message}) — importiert `
-          + 'wurde daher nur die öffentliche Vorschauseite, die nach dem dritten '
-          + 'Schritt abbricht.',
+          `${error.message} Importiert wurde daher nur die öffentliche `
+          + 'Vorschauseite, und die bricht nach dem dritten Schritt ab.',
         );
       }
     }

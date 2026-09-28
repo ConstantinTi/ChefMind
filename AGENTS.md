@@ -175,6 +175,19 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   speichert diese als Basis. Wer das „vereinfacht", halbiert jedes importierte
   KptnCook-Rezept; die Zahlen in `kptncook.test.ts` stammen aus der Vorschauseite
   und fangen es auf.
+- **Die KptnCook-Fixture muss vom echten Endpunkt stammen.** Mit `lang=de`
+  übersetzt die API serverseitig und schickt schlichte deutsche Strings
+  (`title`, `numberTitle: {singular, plural, uncountable}`). Ältere Mitschnitte
+  aus dem Netz — auch die der bekannten CLI — enthalten stattdessen Sprachkarten
+  unter `localizedTitle`. Gegen so eine Fixture lief der Mapper grün, während am
+  echten Endpunkt **jedes** Rezept „KptnCook-Rezept" hieß, weil nur die Karten
+  gelesen wurden. `localized()` versteht deshalb alle drei Formen. Eine Fixture,
+  die nicht mehr zum Server passt, testet nichts.
+- **Ein Schritt nennt oft beide Ofeneinstellungen.** „180 °C (Ober- und
+  Unterhitze) oder 160 °C (Umluft)" — wer den ganzen Satz nach einem Modus
+  absucht, paart die erste Temperatur mit dem letzten Modus und heizt auf
+  180 °C Umluft vor, die einzige Kombination, die dasteht. `readOven()` nimmt
+  deshalb die Klammer, die direkt hinter der Temperatur steht.
 - **Der KptnCook-Import ist eine private Schnittstelle, kein Vertrag.** Die
   öffentliche Seite bricht nach dem dritten Schritt ab, weshalb es die
   Schnittstelle überhaupt braucht. Fällt sie aus, wirft `fetchKptnCookRecipe()`

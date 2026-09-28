@@ -104,12 +104,19 @@ export function kptnCookShareUrl(id: KptnCookId, slug: string): string {
 
 // ── The bits of the API response we read ────────────────────────────────────
 
-type Localized = Record<string, unknown>;
+/**
+ * A translatable field. With `lang=de` the live API sends a plain German
+ * string; older responses (and the odd field still) send a map of language
+ * codes, sometimes wrapped in a `{singular, plural, uncountable}` trio. Every
+ * reader goes through `localized()`, which copes with all three.
+ */
+type Localized = string | Record<string, unknown>;
 
 interface RawIngredientDetails {
   _id?: { $oid?: string };
   typ?: string;
   category?: string;
+  title?: Localized;
   localizedTitle?: Localized;
   numberTitle?: Localized;
   uncountableTitle?: Localized;
@@ -123,6 +130,7 @@ interface RawIngredient {
 
 interface RawStep {
   title?: Localized;
+  text?: Localized;
   timers?: Array<{ minOrExact?: number | null; max?: number | null }> | null;
   ingredients?: Array<{ ingredientId?: string | null } | null> | null;
 }
@@ -130,12 +138,16 @@ interface RawStep {
 export interface RawKptnCookRecipe {
   _id?: { $oid?: string };
   uid?: string;
+  title?: Localized;
   localizedTitle?: Localized;
   authorComment?: Localized;
   preparationTime?: number | null;
   cookingTime?: number | null;
   fixedPortionCount?: number | null;
-  recipeNutrition?: { calories?: number; protein?: number; fat?: number; carbohydrate?: number };
+  recipeNutrition?: {
+    calories?: number; protein?: number; fat?: number;
+    carbohydrate?: number; fiber?: number;
+  };
   activeTags?: string[] | null;
   authors?: Array<{ name?: string | null }> | null;
   imageList?: Array<{ type?: string | null; url?: string | null }> | null;
@@ -144,19 +156,23 @@ export interface RawKptnCookRecipe {
 }
 
 /**
- * Picks the German text out of a localized field.
+ * Picks the German text out of a translatable field, whatever shape it arrives in.
  *
- * The API nests two different shapes under the same key: a flat map of language
- * codes, and — for `numberTitle` — a `{singular, plural}` pair of those maps.
+ * Three shapes are in circulation and one recipe can mix them: a plain German
+ * string (what `lang=de` returns today), a map of language codes (what older
+ * responses returned, and what the 2022-era captures in the wild still show),
+ * and a `{singular, plural, uncountable}` trio whose members are either of the
+ * first two. Reading only one of them is how every imported recipe ended up
+ * called "KptnCook-Rezept".
  */
 function localized(value: unknown, form: 'singular' | 'plural' | null = null): string | null {
   if (typeof value === 'string') return value.trim() || null;
   if (!value || typeof value !== 'object') return null;
-  const node = value as Localized;
+  const node = value as Record<string, unknown>;
 
   if (form && node[form]) return localized(node[form]);
-  if (node.singular || node.plural) {
-    return localized(node.singular ?? node.plural);
+  if (node.singular || node.plural || node.uncountable) {
+    return localized(node.singular ?? node.plural ?? node.uncountable);
   }
 
   for (const lang of [language(), 'de', 'en', 'es', 'fr', 'pt']) {
@@ -263,6 +279,7 @@ function ingredientName(raw: RawIngredient, amount: number | null): string | nul
   const plural = amount === null ? false : amount !== 1;
   return localized(details.numberTitle, plural ? 'plural' : 'singular')
     ?? localized(details.uncountableTitle)
+    ?? localized(details.title)
     ?? localized(details.localizedTitle);
 }
 
@@ -277,13 +294,44 @@ function splitName(full: string): { name: string; preparation: string | null } {
 }
 
 const TIMER_PLACEHOLDER = /<timer>/g;
-const TEMPERATURE = /(\d{2,3})\s*(?:°\s*C|Grad)/i;
-const FAN_OVEN = /umluft/i;
-const TOP_BOTTOM = /ober-?\s*\/?\s*unterhitze/i;
+
+type OvenMode = 'ober_unterhitze' | 'umluft' | 'grill';
+
+/** A temperature plus, optionally, the bracketed oven mode right behind it.
+ *  `\s` covers the narrow no-break space (U+202F) the API puts before °C. */
+const TEMPERATURE = /(\d{2,3})\s*(?:°\s*C|Grad)\s*(?:\(([^)]{0,60})\))?/gi;
+const FAN_OVEN = /umluft|hei[ßss]luft/i;
+const TOP_BOTTOM = /ober-?\s*(?:\/|und|u\.)?\s*-?\s*unterhitze/i;
 const GRILL = /\bgrillfunktion\b|\bgrillstufe\b/i;
 
+function ovenMode(text: string): OvenMode | null {
+  if (FAN_OVEN.test(text)) return 'umluft';
+  if (GRILL.test(text)) return 'grill';
+  if (TOP_BOTTOM.test(text)) return 'ober_unterhitze';
+  return null;
+}
+
+/**
+ * Reads the oven setting out of a step.
+ *
+ * A step routinely offers both settings at once — "180 °C (Ober- und
+ * Unterhitze, empfohlen) oder 160 °C (Umluft)". Scanning the whole sentence for
+ * a mode pairs the FIRST temperature with the LAST mode mentioned, which had
+ * the frittata preheating to 180 °C on fan. So each temperature is matched
+ * together with its own bracket, and only a temperature without one falls back
+ * to the surrounding text.
+ */
+function readOven(text: string): { celsius: number | null; mode: OvenMode | null } {
+  TEMPERATURE.lastIndex = 0;
+  const first = TEMPERATURE.exec(text);
+  if (!first) return { celsius: null, mode: null };
+  const celsius = Number(first[1]);
+  const bracket = first[2];
+  return { celsius, mode: (bracket ? ovenMode(bracket) : null) ?? ovenMode(text) };
+}
+
 function stepText(step: RawStep): string {
-  const raw = localized(step.title) ?? '';
+  const raw = localized(step.title) ?? localized(step.text) ?? '';
   const timers = step.timers ?? [];
   let index = 0;
   return raw.replace(TIMER_PLACEHOLDER, () => {
@@ -300,7 +348,9 @@ function stepText(step: RawStep): string {
 
 export interface KptnCookDraft {
   draft: RecipeDraft;
-  /** The cover image, already carrying the API key — the CDN demands it. */
+  /** The cover image. The key is appended because the CDN the older responses
+   *  pointed at required it; images.kptncook.com ignores it and serves the same
+   *  bytes either way, so it costs nothing to keep for the older hosts. */
   imageUrl: string | null;
   warnings: string[];
 }
@@ -308,7 +358,7 @@ export interface KptnCookDraft {
 export function kptnCookToDraft(raw: RawKptnCookRecipe): KptnCookDraft {
   const warnings: string[] = [];
 
-  const title = localized(raw.localizedTitle) ?? 'KptnCook-Rezept';
+  const title = localized(raw.title) ?? localized(raw.localizedTitle) ?? 'KptnCook-Rezept';
   const baseServings = raw.fixedPortionCount && raw.fixedPortionCount > 0
     ? raw.fixedPortionCount
     : DEFAULT_PORTIONS;
@@ -366,14 +416,7 @@ export function kptnCookToDraft(raw: RawKptnCookRecipe): KptnCookDraft {
     const firstTimer = step.timers?.[0];
     const duration = firstTimer?.minOrExact ?? firstTimer?.max ?? null;
 
-    const temperature = text.match(TEMPERATURE);
-    const temperatureC = temperature ? Number(temperature[1]) : null;
-    let temperatureMode: 'ober_unterhitze' | 'umluft' | 'grill' | null = null;
-    if (temperatureC !== null) {
-      if (FAN_OVEN.test(text)) temperatureMode = 'umluft';
-      else if (GRILL.test(text)) temperatureMode = 'grill';
-      else if (TOP_BOTTOM.test(text)) temperatureMode = 'ober_unterhitze';
-    }
+    const { celsius: temperatureC, mode: temperatureMode } = readOven(text);
 
     const ingredientIndices = (step.ingredients ?? [])
       .map((link) => (link?.ingredientId ? indexByOid.get(link.ingredientId) : undefined))
@@ -427,7 +470,7 @@ export function kptnCookToDraft(raw: RawKptnCookRecipe): KptnCookDraft {
       protein: nutrition.protein ?? null,
       carbs: nutrition.carbohydrate ?? null,
       fat: nutrition.fat ?? null,
-      fiber: null,
+      fiber: nutrition.fiber ?? null,
     },
   };
 
@@ -481,7 +524,13 @@ export async function fetchKptnCookRecipe(id: KptnCookId): Promise<RawKptnCookRe
   const list = Array.isArray(payload) ? payload : [];
   const recipe = list.find((item): item is RawKptnCookRecipe => !!item && typeof item === 'object');
   if (!recipe) {
-    throw new KptnCookError('KptnCook kennt dieses Rezept nicht (oder es ist nicht mehr abrufbar).');
+    // Naming the id matters: the usual cause is that the wrong part of the link
+    // was read as the id, and without it in the message there is nothing to
+    // check the link against.
+    throw new KptnCookError(
+      `KptnCook kennt die Kennung „${id.value}" nicht. Entweder wurde sie falsch `
+      + 'aus dem Link gelesen, oder das Rezept ist nicht mehr abrufbar.',
+    );
   }
   return recipe;
 }
