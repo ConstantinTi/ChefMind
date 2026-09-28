@@ -54,6 +54,38 @@ describe('parseKptnCookId', () => {
       .toEqual({ kind: 'oid', value: '5aa2cbb028000052091b5c6c' });
   });
 
+  // Every one of these used to come back as the id "Frittata" — the slug, not
+  // the recipe. Anything clinging to the last segment made it fail the pattern,
+  // and the search then walked back into the slug. The API answers such an id
+  // with "unknown recipe", which is exactly what the import reported: a link
+  // that looks perfectly fine to a human, rejected for no visible reason.
+  it.each([
+    ['a trailing full stop', 'https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656.'],
+    ['a trailing comma', 'https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656,'],
+    ['angle brackets from a chat client', '<https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656>'],
+    ['a closing bracket', 'https://mobile.kptncook.com/recipe/pinterest/Vegane-Bolognese/4cb17656)'],
+    ['a zero-width space a phone left behind', 'https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656\u200b'],
+    ['a percent-encoded zero-width space', 'https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656%E2%80%8B'],
+    ['a soft hyphen in the middle', 'https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb1\u00ad7656'],
+    ['a trailing newline', 'https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656\n'],
+    ['a trailing slash', 'https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656/'],
+    ['surrounding prose from a share sheet', 'Schau mal: https://mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656 lecker!'],
+    ['no scheme', 'mobile.kptncook.com/recipe/pinterest/Frittata/4cb17656'],
+  ])('survives %s', (_label, link) => {
+    expect(parseKptnCookId(link)).toEqual({ kind: 'uid', value: '4cb17656' });
+  });
+
+  it('lowercases the id, because the API matches it exactly', () => {
+    expect(parseKptnCookId('https://mobile.kptncook.com/recipe/pinterest/x/4CB17656'))
+      .toEqual({ kind: 'uid', value: '4cb17656' });
+  });
+
+  it('prefers hex over a path word of the same length', () => {
+    // "pinterest" is nine, but "sharing" is seven and would otherwise qualify.
+    expect(parseKptnCookId('https://mobile.kptncook.com/sharing/recipe/a40cb1a4'))
+      .toEqual({ kind: 'uid', value: 'a40cb1a4' });
+  });
+
   it('returns null for anything else', () => {
     expect(parseKptnCookId('')).toBeNull();
     expect(parseKptnCookId('https://www.chefkoch.de/rezepte/123/Lasagne.html')).toBeNull();

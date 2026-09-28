@@ -175,6 +175,16 @@ bleibt unangetastet, im Regler steht sie weiterhin als „Original" daneben.
   speichert diese als Basis. Wer das „vereinfacht", halbiert jedes importierte
   KptnCook-Rezept; die Zahlen in `kptncook.test.ts` stammen aus der Vorschauseite
   und fangen es auf.
+- **Ein eingefügter Link ist nie sauber.** Ein Punkt am Satzende, eine
+  schließende Klammer, ein Zero-Width-Space vom Handy — alles davon hing schon
+  am letzten Pfadsegment. Genau dieses Segment ist die uid, und sobald sie am
+  Muster scheiterte, lief die Suche rückwärts weiter in den Slug und lieferte
+  „Frittata" zurück: acht Buchstaben, formal eine gültige uid. KptnCook
+  antwortet darauf mit „kennt dieses Rezept nicht", und der Import scheiterte an
+  einem Link, dem man nichts ansieht. `parseKptnCookId()` putzt deshalb jedes
+  Segment und sucht **zuerst nach Hex** — alle zehn echten uids sind acht
+  Zeichen Kleinbuchstaben-Hex, ein Slug-Wort kann das nicht sein und gewinnt
+  damit auch dann nicht, wenn die echte uid unkenntlich ist.
 - **Die KptnCook-Fixture muss vom echten Endpunkt stammen.** Mit `lang=de`
   übersetzt die API serverseitig und schickt schlichte deutsche Strings
   (`title`, `numberTitle: {singular, plural, uncountable}`). Ältere Mitschnitte

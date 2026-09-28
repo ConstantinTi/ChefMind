@@ -53,28 +53,83 @@ export class KptnCookError extends Error {
 
 export type KptnCookId = { kind: 'uid'; value: string } | { kind: 'oid'; value: string };
 
-const UID_RE = /^[a-z0-9]{7,8}$/i;
-const OID_RE = /^[a-f0-9]{24}$/i;
-
 export function isKptnCookUrl(value: string): boolean {
   try {
-    return /(^|\.)kptncook\.com$/i.test(new URL(value).hostname);
+    return /(^|\.)kptncook\.com$/i.test(new URL(value.trim()).hostname);
   } catch {
     return false;
   }
 }
 
 /**
+ * A uid as KptnCook actually issues them: eight lowercase hex characters. Every
+ * one of the ten real uids sampled from `/dailies`, `/recipes/de/<ts>` and real
+ * share links matched this, and preferring it is what keeps a slug from being
+ * mistaken for an id.
+ */
+const UID_HEX_RE = /^[0-9a-f]{7,8}$/i;
+
+/** The looser rule the reference CLI uses. Only consulted when no hex
+ *  candidate exists, so an unusual uid still imports. */
+const UID_LOOSE_RE = /^[a-z0-9]{7,8}$/i;
+
+const OID_RE = /^[a-f0-9]{24}$/i;
+
+/** Path words that are the right length to be mistaken for an id. */
+const NOT_AN_ID = new Set(['pinterest', 'recipe', 'recipes', 'rezept', 'rezepte', 'sharing']);
+
+/**
+ * Characters that survive a copy-paste but carry no meaning: zero-width spaces
+ * and joiners, the soft hyphen, the BOM, and the bidi controls. A phone that
+ * slips one of these onto the end of a link used to turn the id unrecognisable.
+ */
+const INVISIBLE = /[­​-‏‪-‮⁠-⁤﻿]/g;
+
+function cleanSegment(segment: string): string {
+  return segment
+    .replace(INVISIBLE, '')
+    // Strip punctuation that clings to a pasted link: a full stop ending the
+    // sentence, a closing bracket, a stray comma.
+    .replace(/^[^\p{L}\p{N}]+/u, '')
+    .replace(/[^\p{L}\p{N}]+$/u, '')
+    .trim();
+}
+
+function decodeSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    // A lone % is not a reason to give up on the rest of the link.
+    return segment;
+  }
+}
+
+/** Pulls the first http(s) URL out of surrounding prose, if there is one. */
+function firstUrlIn(text: string): string | null {
+  return text.match(/https?:\/\/[^\s<>"']+/i)?.[0] ?? null;
+}
+
+/**
  * Pulls the recipe id out of a share link, or accepts a bare id.
  *
  * Share links look like `/recipe/pinterest/<slug>/<uid>?lang=de`, so the id is
- * the LAST path segment. Scanning left to right the way the reference CLI does
- * is wrong for short slugs — "Frittata" is eight alphanumerics and would win
- * over the real uid that follows it.
+ * the LAST path segment — but only after the segment has been cleaned up.
+ * Anything clinging to it (a full stop, a closing bracket, a zero-width space
+ * a phone left behind) used to make it fail the pattern, and the search then
+ * walked back into the slug and happily returned "Frittata", which the API
+ * answers with "unknown recipe". That is why the id is matched against hex
+ * first: a slug word cannot be hex, so it cannot win even if the real id is
+ * damaged beyond recognition.
  */
 export function parseKptnCookId(input: string): KptnCookId | null {
-  const raw = input.trim();
+  let raw = input.trim().replace(INVISIBLE, '');
   if (!raw) return null;
+
+  // A share sheet often hands over a sentence with the link inside it. The web
+  // form rejects that before it reaches us, but MCP and curl callers do not.
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(raw) && /\s/.test(raw)) {
+    raw = firstUrlIn(raw) ?? raw;
+  }
 
   let segments: string[];
   try {
@@ -83,17 +138,23 @@ export function parseKptnCookId(input: string): KptnCookId | null {
     // looks like one — "…/rezepte/123/Lasagne.html" would otherwise yield
     // "rezepte" and send us off to fetch a recipe that does not exist.
     if (!isKptnCookUrl(raw)) return null;
-    segments = url.pathname.split('/').filter(Boolean).map(decodeURIComponent);
+    segments = url.pathname.split('/').map(decodeSegment);
   } catch {
-    segments = raw.split(/[/?#]/).filter(Boolean);
+    segments = raw.split(/[/?#\s]/).map(decodeSegment);
   }
-  if (!segments.length) return null;
 
-  for (const segment of [...segments].reverse()) {
-    if (OID_RE.test(segment)) return { kind: 'oid', value: segment };
-    if (UID_RE.test(segment)) return { kind: 'uid', value: segment };
-  }
-  return null;
+  const candidates = segments.map(cleanSegment).filter(Boolean).reverse();
+  if (!candidates.length) return null;
+
+  const oid = candidates.find((c) => OID_RE.test(c));
+  if (oid) return { kind: 'oid', value: oid.toLowerCase() };
+
+  // Hex first, so "Frittata" never outranks the id that follows it.
+  const hex = candidates.find((c) => UID_HEX_RE.test(c));
+  if (hex) return { kind: 'uid', value: hex.toLowerCase() };
+
+  const loose = candidates.find((c) => UID_LOOSE_RE.test(c) && !NOT_AN_ID.has(c.toLowerCase()));
+  return loose ? { kind: 'uid', value: loose.toLowerCase() } : null;
 }
 
 /** The canonical, shareable link for a recipe — what we store as sourceUrl. */
